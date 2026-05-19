@@ -163,49 +163,47 @@ class Contrato {
         ]);
     }
 
-public function crear($datos) {
+    public function crear($datos) {
         try {
             $query = "INSERT INTO " . $this->table_name . " 
                       (numero_contrato, objeto_contrato, valor_total, forma_pago, 
                        id_contratista, id_supervisor, fecha_firma, fecha_inicio, 
-                       fecha_terminacion, plazo_ejecucion, cdp, rp, rubro_presupuestal, 
-                       link_secop, bpin, linea_estrategica, tipo_contrato, 
-                       modalidad_seleccion, fuente_recursos, secretaria, estado) 
+                       fecha_terminacion, fecha_terminacion_real, plazo_ejecucion, plazo_ejecucion_real, 
+                       cdp, rp, rubro_presupuestal, link_secop, bpin, linea_estrategica, 
+                       tipo_contrato, modalidad_seleccion, fuente_recursos, secretaria, estado) 
                       VALUES 
                       (:num, :obj, :val, :pago, 
                        :id_con, :id_sup, :f_firma, :f_inicio, 
-                       :f_termino, :plazo, :cdp, :rp, :rubro, 
-                       :secop, :bpin, :linea, :tipo, 
-                       :modalidad, :fuente, :secretaria, :est)";
+                       :f_term, :f_term_real, :plazo, :plazo_real, 
+                       :cdp, :rp, :rubro, :secop, :bpin, :linea, 
+                       :tipo, :modalidad, :fuente, :secretaria, :est)";
             
             $stmt = $this->conn->prepare($query);
             
             return $stmt->execute([
-                ':num'       => $datos['numero_contrato'],
-                ':obj'       => $datos['objeto_contrato'],
-                ':val'       => $datos['valor_total'],
-                ':pago'      => $datos['forma_pago'],
-                ':id_con'    => $datos['id_contratista'],
-                ':id_sup'    => $datos['id_supervisor'],
-                ':f_firma'   => $datos['fecha_firma'],
-                ':f_inicio'  => $datos['fecha_inicio'],
-                ':f_termino' => $datos['fecha_terminacion'],
-                ':plazo'     => $datos['plazo_ejecucion'],
-                ':cdp'       => $datos['cdp'],
-                ':rp'        => $datos['rp'],
-                ':rubro'     => $datos['rubro_presupuestal'],
-                ':secop'     => $datos['link_secop'],
-                
-                // --- LOS CAMPOS NUEVOS ---
-                ':bpin'      => $datos['bpin'],
-                ':linea'     => $datos['linea_estrategica'],
-                ':tipo'      => $datos['tipo_contrato'],
-                ':modalidad' => $datos['modalidad_seleccion'],
-                ':fuente'    => $datos['fuente_recursos'],
-                ':dep'       => $datos['dependencia'],
-                // -------------------------
-
-                ':est'       => $datos['estado']
+                ':num'          => $datos['numero_contrato'],
+                ':obj'          => $datos['objeto_contrato'],
+                ':val'          => $datos['valor_total'],
+                ':pago'         => $datos['forma_pago'],
+                ':id_con'       => $datos['id_contratista'],
+                ':id_sup'       => $datos['id_supervisor'],
+                ':f_firma'      => $datos['fecha_firma'],
+                ':f_inicio'     => $datos['fecha_inicio'],
+                ':f_term'       => $datos['fecha_terminacion'],
+                ':f_term_real'  => $datos['fecha_terminacion_real'],
+                ':plazo'        => $datos['plazo_ejecucion'],
+                ':plazo_real'   => $datos['plazo_ejecucion_real'],
+                ':cdp'          => $datos['cdp'],
+                ':rp'           => $datos['rp'],
+                ':rubro'        => $datos['rubro_presupuestal'],
+                ':secop'        => $datos['link_secop'],
+                ':bpin'         => $datos['bpin'],
+                ':linea'        => $datos['linea_estrategica'],
+                ':tipo'         => $datos['tipo_contrato'],
+                ':modalidad'    => $datos['modalidad_seleccion'],
+                ':fuente'       => $datos['fuente_recursos'],
+                ':secretaria'   => $datos['secretaria'],
+                ':est'          => $datos['estado']
             ]);
 
         } catch (PDOException $e) {
@@ -214,6 +212,23 @@ public function crear($datos) {
                     <p>" . $e->getMessage() . "</p>
                  </div>");
         }
+    }
+
+    // Obtener toda la información detallada de un contrato, incluyendo contratista y supervisor
+    public function obtenerDetallePorId($id) {
+        // CORRECCIÓN: Usamos nombre_razon_social y documento, que son los nombres reales en tu BD
+        $query = "SELECT c.*, 
+                         con.nombre_razon_social AS contratista_nombre, 
+                         con.documento AS contratista_documento,
+                         CONCAT(u.nombres, ' ', u.apellidos) AS supervisor_nombre
+                  FROM " . $this->table_name . " c
+                  LEFT JOIN contratistas con ON c.id_contratista = con.id_contratista
+                  LEFT JOIN usuarios u ON c.id_supervisor = u.id_usuario
+                  WHERE c.id_contrato = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 ?>

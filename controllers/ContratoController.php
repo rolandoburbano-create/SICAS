@@ -50,39 +50,34 @@ class ContratoController {
             
             // Recolectar TODOS los datos del formulario
             // Usamos ?? null para que si un campo no es obligatorio y viene vacío, no genere error
-            $datos = [
-                'numero_contrato'    => $_POST['numero_contrato'],
-                'bpin'               => $_POST['bpin'] ?? '',
-                'estado_contrato'    => $_POST['estado_contrato'] ?? '',
-                'linea_estrategica'  => $_POST['linea_estrategica'],
-                'objeto_contrato'    => $_POST['objeto_contrato'],
-                'modalidad_contratacion' => $_POST['modalidad_contratacion'] ?? '',
-                'tipo_contrato'      => $_POST['tipo_contrato'],
-                'id_contratista'     => $_POST['id_contratista'],
-                'id_supervisor'      => $_POST['id_supervisor'],
-                'cdp'                => $_POST['cdp'] ?? '',
-                'rubro_presupuestal' => $_POST['rubro_presupuestal'] ?? '',
-                'valor_total'        => $_POST['valor_total'],
-                'forma_pago'         => $_POST['forma_pago'] ?? '',
-                'fecha_firma'        => $_POST['fecha_firma'] ?? null,
-                'fecha_inicio'       => $_POST['fecha_inicio'] ?? null,
-                'fecha_terminacion'  => $_POST['fecha_terminacion'] ?? null,
-                'plazo_ejecucion'    => $_POST['plazo_ejecucion'] ?? '',
-                'rp'                 => $_POST['rp'] ?? '',
-                'link_secop'         => $_POST['link_secop'] ?? '',
-
-                // --- LOS CAMPOS NUEVOS ---
-                'bpin'                => $_POST['bpin'] ?? '',
-                'linea_estrategica'   => $_POST['linea_estrategica'] ?? '',
-                'tipo_contrato'       => $_POST['tipo_contrato'] ?? '',
-                'modalidad_seleccion' => $_POST['modalidad_seleccion'] ?? '',
-                'fuente_recursos'     => $_POST['fuente_recursos'] ?? '',
-                'plazo_ejecucion'     => $_POST['plazo_ejecucion'] ?? '',
-                'secretaria'          => $_POST['secretaria'] ?? '',
-                'dependencia'         => $_POST['dependencia'] ?? '',
-                // -------------------------
-
-                'estado'             => 'Activo' // Por defecto nace activo
+             $datos = [
+                'numero_contrato'        => $_POST['numero_contrato'],
+                'objeto_contrato'        => $_POST['objeto_contrato'],
+                'valor_total'            => $_POST['valor_total'],
+                'forma_pago'             => $_POST['forma_pago'] ?? '',
+                'id_contratista'         => $_POST['id_contratista'],
+                'id_supervisor'          => $_POST['id_supervisor'],
+                'fecha_firma'            => $_POST['fecha_firma'] ?? null,
+                'fecha_inicio'           => $_POST['fecha_inicio'] ?? null,
+                'fecha_terminacion'      => $_POST['fecha_terminacion'] ?? null,
+                
+                // --- NUEVOS CAMPOS DE EJECUCIÓN REAL ---
+                'fecha_terminacion_real' => $_POST['fecha_terminacion_real'] ?? null,
+                'plazo_ejecucion_real'   => $_POST['plazo_ejecucion_real'] ?? '',
+                // ----------------------------------------
+                
+                'plazo_ejecucion'        => $_POST['plazo_ejecucion'] ?? '',
+                'cdp'                    => $_POST['cdp'] ?? '',
+                'rp'                     => $_POST['rp'] ?? '',
+                'rubro_presupuestal'     => $_POST['rubro_presupuestal'] ?? '',
+                'link_secop'             => $_POST['link_secop'] ?? '',
+                'bpin'                   => $_POST['bpin'] ?? '',
+                'linea_estrategica'      => $_POST['linea_estrategica'] ?? '',
+                'tipo_contrato'          => $_POST['tipo_contrato'] ?? '',
+                'modalidad_seleccion'    => $_POST['modalidad_seleccion'] ?? '',
+                'fuente_recursos'        => $_POST['fuente_recursos'] ?? '',
+                'secretaria'             => $_POST['secretaria'] ?? '',
+                'estado'                 => 'Activo' 
             ];
 
             try {
@@ -94,6 +89,29 @@ class ContratoController {
                 echo "<script>alert('Error: " . addslashes($e->getMessage()) . "'); window.history.back();</script>";
             }
         }
+    }
+
+    public function show() {
+        // Permitimos que todos los roles activos vean los detalles
+        AuthHelper::permitir([1, 2, 3, 4]);
+
+        if (!isset($_GET['id'])) {
+            header("Location: index.php?controller=contrato&action=index");
+            exit();
+        }
+
+        $id = $_GET['id'];
+        $contratoModel = new Contrato();
+        $contrato = $contratoModel->obtenerDetallePorId($id);
+
+        if (!$contrato) {
+            die("<div style='padding: 20px; color: red;'>El contrato solicitado no existe.</div>");
+        }
+
+        // Cargar las vistas
+        require_once 'views/layout/header.php';
+        require_once 'views/contratos/show.php';
+        require_once 'views/layout/footer.php';
     }
 
     public function edit() {

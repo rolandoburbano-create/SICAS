@@ -52,9 +52,29 @@
                         <textarea name="objeto_contrato" required class="textarea textarea-bordered h-24" placeholder="Descripción detallada del contrato..."></textarea>
                     </div>
                 </div>
-                
-                <!-- NUEVOS CAMPOS INSTITUCIONALES -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Contratista *</span></label>
+                        <select name="id_contratista" required class="select select-bordered w-full">
+                            <option value="">Seleccione al Contratista...</option>
+                            <?php foreach($contratistas as $con): ?>
+                                <option value="<?= $con['id_contratista'] ?>">
+                                    <?= $con['documento'] ?> - <?= $con['nombre_razon_social'] ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Supervisor *</span></label>
+                        <select name="id_supervisor" required class="select select-bordered w-full">
+                            <option value="">Seleccione al Supervisor...</option>
+                            <?php foreach($supervisores as $sup): ?>
+                                <option value="<?= $sup['id_usuario'] ?>">
+                                    <?= $sup['nombres'] ?> <?= $sup['apellidos'] ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Secretaría / Oficina *</span></label>
                             <select name="secretaria" class="select select-bordered w-full">
@@ -82,9 +102,6 @@
                             <option value="Cofinanciación">Cofinanciación (Nación/Departamento)</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 border-t pt-4 border-base-300">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Modalidad *</span></label>
                         <select name="modalidad_seleccion" required class="select select-bordered">
@@ -108,28 +125,6 @@
                             <option value="Suministro">Suministro</option>
                         </select>
                     </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Contratista *</span></label>
-                        <select name="id_contratista" required class="select select-bordered w-full">
-                            <option value="">Seleccione al Contratista...</option>
-                            <?php foreach($contratistas as $con): ?>
-                                <option value="<?= $con['id_contratista'] ?>">
-                                    <?= $con['documento'] ?> - <?= $con['nombre_razon_social'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Supervisor *</span></label>
-                        <select name="id_supervisor" required class="select select-bordered w-full">
-                            <option value="">Seleccione al Supervisor...</option>
-                            <?php foreach($supervisores as $sup): ?>
-                                <option value="<?= $sup['id_usuario'] ?>">
-                                    <?= $sup['nombres'] ?> <?= $sup['apellidos'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
                 </div>
             </div>
         </div>
@@ -151,20 +146,19 @@
                         </select>
                     </div>
                     <!-- NUEVOS CAMPOS PRESUPUESTALES -->
-                    <div class="divider text-xs opacity-50">Certificados Presupuestales</div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold">Número CDP</span></label>
-                            <input type="text" name="cdp" placeholder="Ej: 2026-001" class="input input-bordered w-full" />
-                        </div>
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold">Número RP</span></label>
-                            <input type="text" name="rp" placeholder="Ej: 2026-045" class="input input-bordered w-full" />
-                        </div>
-                        <div class="form-control">
-                            <label class="label"><span class="label-text font-bold">Rubro Presupuestal</span></label>
-                            <input type="text" name="rubro_presupuestal" placeholder="Ej: 2.3.1.01" class="input input-bordered w-full" />
-                        </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 border-t pt-4 border-base-300">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Número CDP</span></label>
+                        <input type="text" name="cdp" placeholder="Ej: 2026-001" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Número RP</span></label>
+                        <input type="text" name="rp" placeholder="Ej: 2026-045" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Rubro Presupuestal</span></label>
+                        <input type="text" name="rubro_presupuestal" placeholder="Ej: 2.3.1.01" class="input input-bordered w-full" />
                     </div>
                 </div>
             </div>
@@ -180,21 +174,22 @@
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Inicio *</span></label>
-                        <input type="date" name="fecha_inicio" class="input input-bordered" />
+                        <input type="date" name="fecha_inicio" id="fecha_inicio_calc" class="input input-bordered" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Plazo (Días)</span></label>
-                        <input type="number" name="plazo_ejecucion" class="input input-bordered" placeholder="Ej. 300" />
+                        <label class="label"><span class="label-text font-bold">Fecha Terminación Pactada*</span></label>
+                        <input type="date" name="fecha_terminacion" id="fecha_terminacion_calc" class="input input-bordered" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Fecha Terminación</span></label>
-                        <input type="date" name="fecha_terminacion" class="input input-bordered" />
+                        <label class="label"><span class="label-text font-bold">Plazo</span></label>
+                        <input type="text" name="plazo_ejecucion" id="plazo_ejecucion_calc" class="input input-bordered font-bold text-primary" placeholder="0 Días" />
                     </div>
                 </div>
+                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 border-t pt-4 border-base-300">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Terminación Real</span></label>
-                        <input type="date" name="fecha_terminacion" class="input input-bordered" />
+                        <input type="date" name="fecha_terminacion_real" id="fecha_terminacion_real_calc" class="input input-bordered" />
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Liquidación</span></label>
@@ -202,7 +197,7 @@
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Plazo Final Ejecutado</span></label>
-                        <input type="text" name="plazo_ejecucion" class="input input-bordered" placeholder="Ej. 6 meses y 15 días" />
+                        <input type="text" name="plazo_ejecucion_real" id="plazo_ejecucion_real_calc" class="input input-bordered font-bold text-success" placeholder="0 Días" />
                     </div>
                 </div>
             </div>
@@ -287,5 +282,61 @@
                 <i class="fa-solid fa-save mr-2"></i> Radicar Contrato en el Sistema
             </button>
         </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputInicio = document.getElementById('fecha_inicio_calc');
+            const inputFinEst = document.getElementById('fecha_terminacion_calc');
+            const inputPlazoEst = document.getElementById('plazo_ejecucion_calc');
+
+            const inputFinReal = document.getElementById('fecha_terminacion_real_calc');
+            const inputPlazoReal = document.getElementById('plazo_ejecucion_real_calc');
+
+            // Función unificada para calcular la diferencia exacta en días
+            function obtenerDiferenciaDias(fechaInicioVal, fechaFinVal) {
+                if (!fechaInicioVal || !fechaFinVal) return "";
+                
+                const f1 = new Date(fechaInicioVal);
+                const f2 = new Date(fechaFinVal);
+                
+                f1.setMinutes(f1.getMinutes() + f1.getTimezoneOffset());
+                f2.setMinutes(f2.getMinutes() + f2.getTimezoneOffset());
+
+                if (f2 >= f1) {
+                    const diferenciaMs = f2 - f1;
+                    const diasTotales = Math.floor(diferenciaMs / (1000 * 60 * 60 * 24));
+                    return diasTotales === 0 ? "Mismo día" : diasTotales + (diasTotales === 1 ? " día" : " días");
+                } else {
+                    return "Fechas inválidas";
+                }
+            }
+
+            function calcularPlazoEstimado() {
+                if (inputInicio && inputFinEst && inputPlazoEst) {
+                    inputPlazoEst.value = obtenerDiferenciaDias(inputInicio.value, inputFinEst.value);
+                }
+            }
+
+            function calcularPlazoReal() {
+                if (inputInicio && inputFinReal && inputPlazoReal) {
+                    inputPlazoReal.value = obtenerDiferenciaDias(inputInicio.value, inputFinReal.value);
+                }
+            }
+
+            // Escuchar cambios en los controles de fecha
+            if (inputInicio) {
+                inputInicio.addEventListener('change', function() {
+                    calcularPlazoEstimado();
+                    calcularPlazoReal();
+                });
+            }
+            if (inputFinEst) {
+                inputFinEst.addEventListener('change', calcularPlazoEstimado);
+            }
+            if (inputFinReal) {
+                inputFinReal.addEventListener('change', calcularPlazoReal);
+            }
+        });
+        </script>
     </form>
 </div>
