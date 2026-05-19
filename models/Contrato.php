@@ -1,0 +1,219 @@
+<?php
+require_once 'config/Conexion.php';
+
+class Contrato {
+    private $conn;
+    private $table_name = "contratos";
+
+    public function __construct() {
+        $database = new Conexion();
+        $this->conn = $database->getConnection();
+    }
+
+    // Listar todos los contratos con el nombre de su contratista
+    public function listar() {
+        $query = "SELECT c.id_contrato, c.numero_contrato, c.tipo_contrato, c.valor_total, c.estado_contrato, con.nombre_razon_social 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN contratistas con ON c.id_contratista = con.id_contratista
+                  ORDER BY c.fecha_elaboracion DESC";
+                  
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    // Insertar este código DENTRO de la clase Contrato, debajo de la función listar()
+
+    public function registrar($datos, $id_usuario) {
+        try {
+            // Iniciar transacción: O se guarda todo, o no se guarda nada
+            $this->conn->beginTransaction();
+
+            // 1. Insertar el Contrato
+            $query = "INSERT INTO " . $this->table_name . " 
+                    (numero_contrato, id_contratista, tipo_contrato, modalidad_seleccion, fuente_recursos, valor_total, plazo_ejecucion, numero_cdp, numero_rp, objeto_contrato, fecha_elaboracion, id_supervisor, secretaria, fecha_inicio) 
+                    VALUES 
+                    (:numero, :contratista, :tipo, :modalidad, :fuente, :valor, :plazo, :cdp, :rp, :objeto, :fecha_elab, :supervisor, :secretaria, :fecha_ini)";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':numero' => $datos['numero_contrato'],
+                ':contratista' => $datos['id_contratista'],
+                ':tipo' => $datos['tipo_contrato'],
+                ':modalidad' => $datos['modalidad_seleccion'],
+                ':fuente' => $datos['fuente_recursos'],
+                ':valor' => $datos['valor_total'],
+                ':plazo' => $datos['plazo_ejecucion'],
+                ':cdp' => $datos['numero_cdp'],
+                ':rp' => $datos['numero_rp'],
+                ':objeto' => $datos['objeto_contrato'],
+                ':fecha_elab' => $datos['fecha_elaboracion'],
+                ':supervisor' => $id_usuario, // El supervisor por defecto es quien lo crea (o se puede cambiar luego)
+                ':secretaria' => $datos['secretaria'],
+                ':fecha_ini' => $datos['fecha_inicio']
+            ]);
+
+            $id_contrato_nuevo = $this->conn->lastInsertId();
+
+            // 2. Registrar en Auditoría (Cumplimiento Ley 1474)
+            $queryAuditoria = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, registro_id, detalles_nuevos, direccion_ip) 
+                               VALUES (:user, 'INSERT', 'contratos', :reg_id, :detalles, :ip)";
+            $stmtAuditoria = $this->conn->prepare($queryAuditoria);
+            $stmtAuditoria->execute([
+                ':user' => $id_usuario,
+                ':reg_id' => $id_contrato_nuevo,
+                ':detalles' => json_encode($datos),
+                ':ip' => $_SERVER['REMOTE_ADDR']
+            ]);
+
+            // Confirmar transacción
+            $this->conn->commit();
+            return true;
+
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            // En producción, guardar $e->getMessage() en un log de errores
+            return false;
+        }
+    }
+
+    public function guardar($datos) {
+        $query = "INSERT INTO " . $this->table_name . " 
+                (numero_contrato, bpin, linea_estrategica, id_contratista, id_supervisor, tipo_contrato, clase_contrato, objeto_contrato, 
+                valor_total, forma_pago, fecha_elaboracion, fecha_firma, fecha_inicio, plazo_ejecucion, 
+                tiene_prorroga, numero_prorroga, tiempo_prorroga, 
+                tiene_suspension, numero_suspension, duracion_suspension,
+                tiene_reinicio, fecha_reinicio, 
+                tiene_cesion, fecha_cesion, id_nuevo_contratista,
+                fecha_terminacion, estado) 
+                VALUES 
+                (:num, :bpin, :linea, :id_con, :id_sup, :tipo, :clase, :objeto, :valor, :pago, :f_elab, :f_firma, :f_ini, :plazo, 
+                :t_pro, :n_pro, :ti_pro, :t_sus, :n_sus, :d_sus, :t_rei, :f_rei, :t_ces, :f_ces, :id_ncon, :f_term, :estado)";
+        
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([
+            ':num' => $datos['numero_contrato'],
+            ':bpin' => $datos['bpin'],
+            ':linea' => $datos['linea_estrategica'],
+            ':id_con' => $datos['id_contratista'],
+            ':id_sup' => $datos['id_supervisor'],
+            ':tipo' => $datos['tipo_contrato'],
+            ':clase' => $datos['clase_contrato'],
+            ':objeto' => $datos['objeto_contrato'],
+            ':valor' => $datos['valor_total'],
+            ':pago' => $datos['forma_pago'],
+            ':f_elab' => $datos['fecha_elaboracion'],
+            ':f_firma' => $datos['fecha_firma'],
+            ':f_ini' => $datos['fecha_inicio'],
+            ':plazo' => $datos['plazo_ejecucion'],
+            ':t_pro' => isset($datos['tiene_prorroga']) ? 1 : 0,
+            ':n_pro' => $datos['numero_prorroga'] ?? 0,
+            ':ti_pro' => $datos['tiempo_prorroga'] ?? null,
+            ':t_sus' => isset($datos['tiene_suspension']) ? 1 : 0,
+            ':n_sus' => $datos['numero_suspension'] ?? 0,
+            ':d_sus' => $datos['duracion_suspension'] ?? null,
+            ':t_rei' => isset($datos['tiene_reinicio']) ? 1 : 0,
+            ':f_rei' => $datos['fecha_reinicio'] ?? null,
+            ':t_ces' => isset($datos['tiene_cesion']) ? 1 : 0,
+            ':f_ces' => $datos['fecha_cesion'] ?? null,
+            ':id_ncon' => !empty($datos['id_nuevo_contratista']) ? $datos['id_nuevo_contratista'] : null,
+            ':f_term' => $datos['fecha_terminacion'],
+            ':estado' => $datos['estado']
+        ]);
+    }
+
+    // Obtener un contrato por su ID
+    public function obtenerPorId($id) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id_contrato = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Actualizar un contrato existente
+    public function actualizar($datos) {
+        $query = "UPDATE " . $this->table_name . " 
+                  SET numero_contrato = :num, 
+                      objeto_contrato = :objeto, 
+                      valor_total = :valor, 
+                      forma_pago = :pago,
+                      tiene_prorroga = :t_pro,
+                      numero_prorroga = :n_pro,
+                      tiempo_prorroga = :ti_pro,
+                      tiene_suspension = :t_sus,
+                      numero_suspension = :n_sus,
+                      duracion_suspension = :d_sus
+                  WHERE id_contrato = :id";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        return $stmt->execute([
+            ':num' => $datos['numero_contrato'],
+            ':objeto' => $datos['objeto_contrato'],
+            ':valor' => $datos['valor_total'],
+            ':pago' => $datos['forma_pago'],
+            ':t_pro' => $datos['tiene_prorroga'],
+            ':n_pro' => $datos['numero_prorroga'],
+            ':ti_pro' => $datos['tiempo_prorroga'],
+            ':t_sus' => $datos['tiene_suspension'],
+            ':n_sus' => $datos['numero_suspension'],
+            ':d_sus' => $datos['duracion_suspension'],
+            ':id' => $datos['id_contrato']
+        ]);
+    }
+
+public function crear($datos) {
+        try {
+            $query = "INSERT INTO " . $this->table_name . " 
+                      (numero_contrato, objeto_contrato, valor_total, forma_pago, 
+                       id_contratista, id_supervisor, fecha_firma, fecha_inicio, 
+                       fecha_terminacion, plazo_ejecucion, cdp, rp, rubro_presupuestal, 
+                       link_secop, bpin, linea_estrategica, tipo_contrato, 
+                       modalidad_seleccion, fuente_recursos, secretaria, estado) 
+                      VALUES 
+                      (:num, :obj, :val, :pago, 
+                       :id_con, :id_sup, :f_firma, :f_inicio, 
+                       :f_termino, :plazo, :cdp, :rp, :rubro, 
+                       :secop, :bpin, :linea, :tipo, 
+                       :modalidad, :fuente, :secretaria, :est)";
+            
+            $stmt = $this->conn->prepare($query);
+            
+            return $stmt->execute([
+                ':num'       => $datos['numero_contrato'],
+                ':obj'       => $datos['objeto_contrato'],
+                ':val'       => $datos['valor_total'],
+                ':pago'      => $datos['forma_pago'],
+                ':id_con'    => $datos['id_contratista'],
+                ':id_sup'    => $datos['id_supervisor'],
+                ':f_firma'   => $datos['fecha_firma'],
+                ':f_inicio'  => $datos['fecha_inicio'],
+                ':f_termino' => $datos['fecha_terminacion'],
+                ':plazo'     => $datos['plazo_ejecucion'],
+                ':cdp'       => $datos['cdp'],
+                ':rp'        => $datos['rp'],
+                ':rubro'     => $datos['rubro_presupuestal'],
+                ':secop'     => $datos['link_secop'],
+                
+                // --- LOS CAMPOS NUEVOS ---
+                ':bpin'      => $datos['bpin'],
+                ':linea'     => $datos['linea_estrategica'],
+                ':tipo'      => $datos['tipo_contrato'],
+                ':modalidad' => $datos['modalidad_seleccion'],
+                ':fuente'    => $datos['fuente_recursos'],
+                ':dep'       => $datos['dependencia'],
+                // -------------------------
+
+                ':est'       => $datos['estado']
+            ]);
+
+        } catch (PDOException $e) {
+            die("<div style='background: black; color: red; padding: 20px; font-family: monospace;'>
+                    <h3>🚨 ERROR DE BASE DE DATOS AL GUARDAR 🚨</h3>
+                    <p>" . $e->getMessage() . "</p>
+                 </div>");
+        }
+    }
+}
+?>
