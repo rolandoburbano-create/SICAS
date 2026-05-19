@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-05-2026 a las 05:52:59
+-- Tiempo de generación: 19-05-2026 a las 08:12:05
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -100,10 +100,9 @@ CREATE TABLE `contratos` (
   `valor_total` decimal(15,2) NOT NULL,
   `forma_pago` text DEFAULT NULL,
   `plazo_ejecucion` varchar(100) NOT NULL COMMENT 'Ej: 6 meses, 45 días',
+  `plazo_ejecucion_real` varchar(100) DEFAULT NULL,
   `cdp` varchar(100) DEFAULT NULL,
   `rp` varchar(100) DEFAULT NULL,
-  `numero_cdp` varchar(50) NOT NULL,
-  `numero_rp` varchar(50) NOT NULL,
   `rubro_presupuestal` varchar(255) DEFAULT NULL,
   `objeto_contrato` text NOT NULL,
   `fecha_elaboracion` date NOT NULL,
@@ -126,6 +125,7 @@ CREATE TABLE `contratos` (
   `tiene_reinicio` tinyint(1) DEFAULT 0,
   `numero_reinicio` int(11) DEFAULT 0,
   `fecha_terminacion` date DEFAULT NULL,
+  `fecha_terminacion_real` date DEFAULT NULL,
   `fecha_liquidacion` date DEFAULT NULL,
   `estado` enum('Borrador','Activo','Suspendido','Terminado','Liquidado') DEFAULT 'Borrador',
   `link_secop` varchar(255) DEFAULT NULL
@@ -135,8 +135,9 @@ CREATE TABLE `contratos` (
 -- Volcado de datos para la tabla `contratos`
 --
 
-INSERT INTO `contratos` (`id_contrato`, `numero_contrato`, `bpin`, `linea_estrategica`, `id_contratista`, `tipo_contrato`, `modalidad_seleccion`, `fuente_recursos`, `valor_total`, `forma_pago`, `plazo_ejecucion`, `cdp`, `rp`, `numero_cdp`, `numero_rp`, `rubro_presupuestal`, `objeto_contrato`, `fecha_elaboracion`, `fecha_firma`, `id_supervisor`, `secretaria`, `fecha_inicio`, `fecha_reinicio`, `tiene_cesion`, `fecha_cesion`, `id_nuevo_contratista`, `estado_contrato`, `creado_en`, `tiene_prorroga`, `numero_prorroga`, `tiempo_prorroga`, `tiene_suspension`, `numero_suspension`, `duracion_suspension`, `tiene_reinicio`, `numero_reinicio`, `fecha_terminacion`, `fecha_liquidacion`, `estado`, `link_secop`) VALUES
-(2, '007', NULL, NULL, 2, 'Prestación de Servicios', 'Contratación Directa', 'SGP', 20000000.00, NULL, '1 MESES', NULL, NULL, '009', '010', NULL, 'SECOP Y SIA', '2026-04-16', NULL, 1, 'Oficina Asesora Juridica', '2026-04-17', 0, 0, NULL, NULL, 'En Ejecución', '2026-04-19 05:14:50', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, NULL, 'Activo', NULL);
+INSERT INTO `contratos` (`id_contrato`, `numero_contrato`, `bpin`, `linea_estrategica`, `id_contratista`, `tipo_contrato`, `modalidad_seleccion`, `fuente_recursos`, `valor_total`, `forma_pago`, `plazo_ejecucion`, `plazo_ejecucion_real`, `cdp`, `rp`, `rubro_presupuestal`, `objeto_contrato`, `fecha_elaboracion`, `fecha_firma`, `id_supervisor`, `secretaria`, `fecha_inicio`, `fecha_reinicio`, `tiene_cesion`, `fecha_cesion`, `id_nuevo_contratista`, `estado_contrato`, `creado_en`, `tiene_prorroga`, `numero_prorroga`, `tiempo_prorroga`, `tiene_suspension`, `numero_suspension`, `duracion_suspension`, `tiene_reinicio`, `numero_reinicio`, `fecha_terminacion`, `fecha_terminacion_real`, `fecha_liquidacion`, `estado`, `link_secop`) VALUES
+(2, '007', NULL, NULL, 2, 'Prestación de Servicios', 'Contratación Directa', 'SGP', 20000000.00, NULL, '1 MESES', NULL, NULL, NULL, NULL, 'SECOP Y SIA', '2026-04-16', NULL, 1, 'Oficina Asesora Juridica', '2026-04-17', 0, 0, NULL, NULL, 'En Ejecución', '2026-04-19 05:14:50', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, NULL, NULL, 'Activo', NULL),
+(8, '012-2026', '202600000050478', '1. Silvia un referente de turismo', 3, 'Prestación de Servicios', 'Contratación directa', 'SGP - Propósito General', 20400000.00, 'Actas mensuales', '180', NULL, '018', '021', '1.2.2.1.2', 'PRESTAR LOS SERVICIOS PROFESIONALES PARA BRINDAR APOYO TÉCNICO Y ADMINISTRATIVO EN LOS PROCESOS DE PLANEACIÓN, SEGUIMIENTO Y CONTROL PARA LA EJECUCIÓN DE LOS PROYECTOS DE INVERSIÓN A CARGO DE LA SECRETARÍA DE INFRAESTRUCTURA DE LA ALCALDÍA MUNICIPAL DE SILVIA CAUCA', '0000-00-00', '2026-01-16', 3, 'Secretaría de Infraestructura', '2026-01-16', 0, 0, NULL, NULL, 'En Ejecución', '2026-05-19 04:27:20', 0, 0, NULL, 0, 0, NULL, 0, 0, '2026-07-15', NULL, NULL, 'Activo', 'https://www.contratos.gov.co/entidades/entLogin.html');
 
 -- --------------------------------------------------------
 
@@ -315,7 +316,7 @@ ALTER TABLE `contratistas`
 -- AUTO_INCREMENT de la tabla `contratos`
 --
 ALTER TABLE `contratos`
-  MODIFY `id_contrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id_contrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT de la tabla `control_plataformas`
