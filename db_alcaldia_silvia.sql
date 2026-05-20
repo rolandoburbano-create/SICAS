@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-05-2026 a las 08:12:05
+-- Tiempo de generación: 20-05-2026 a las 16:03:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -137,7 +137,8 @@ CREATE TABLE `contratos` (
 
 INSERT INTO `contratos` (`id_contrato`, `numero_contrato`, `bpin`, `linea_estrategica`, `id_contratista`, `tipo_contrato`, `modalidad_seleccion`, `fuente_recursos`, `valor_total`, `forma_pago`, `plazo_ejecucion`, `plazo_ejecucion_real`, `cdp`, `rp`, `rubro_presupuestal`, `objeto_contrato`, `fecha_elaboracion`, `fecha_firma`, `id_supervisor`, `secretaria`, `fecha_inicio`, `fecha_reinicio`, `tiene_cesion`, `fecha_cesion`, `id_nuevo_contratista`, `estado_contrato`, `creado_en`, `tiene_prorroga`, `numero_prorroga`, `tiempo_prorroga`, `tiene_suspension`, `numero_suspension`, `duracion_suspension`, `tiene_reinicio`, `numero_reinicio`, `fecha_terminacion`, `fecha_terminacion_real`, `fecha_liquidacion`, `estado`, `link_secop`) VALUES
 (2, '007', NULL, NULL, 2, 'Prestación de Servicios', 'Contratación Directa', 'SGP', 20000000.00, NULL, '1 MESES', NULL, NULL, NULL, NULL, 'SECOP Y SIA', '2026-04-16', NULL, 1, 'Oficina Asesora Juridica', '2026-04-17', 0, 0, NULL, NULL, 'En Ejecución', '2026-04-19 05:14:50', 0, 0, NULL, 0, 0, NULL, 0, 0, NULL, NULL, NULL, 'Activo', NULL),
-(8, '012-2026', '202600000050478', '1. Silvia un referente de turismo', 3, 'Prestación de Servicios', 'Contratación directa', 'SGP - Propósito General', 20400000.00, 'Actas mensuales', '180', NULL, '018', '021', '1.2.2.1.2', 'PRESTAR LOS SERVICIOS PROFESIONALES PARA BRINDAR APOYO TÉCNICO Y ADMINISTRATIVO EN LOS PROCESOS DE PLANEACIÓN, SEGUIMIENTO Y CONTROL PARA LA EJECUCIÓN DE LOS PROYECTOS DE INVERSIÓN A CARGO DE LA SECRETARÍA DE INFRAESTRUCTURA DE LA ALCALDÍA MUNICIPAL DE SILVIA CAUCA', '0000-00-00', '2026-01-16', 3, 'Secretaría de Infraestructura', '2026-01-16', 0, 0, NULL, NULL, 'En Ejecución', '2026-05-19 04:27:20', 0, 0, NULL, 0, 0, NULL, 0, 0, '2026-07-15', NULL, NULL, 'Activo', 'https://www.contratos.gov.co/entidades/entLogin.html');
+(8, '012-2026', '202600000050478', '1. Silvia un referente de turismo', 3, 'Prestación de Servicios', 'Contratación directa', 'SGP - Propósito General', 20400000.00, 'Actas mensuales', '180', NULL, '018', '021', '1.2.2.1.2', 'PRESTAR LOS SERVICIOS PROFESIONALES PARA BRINDAR APOYO TÉCNICO Y ADMINISTRATIVO EN LOS PROCESOS DE PLANEACIÓN, SEGUIMIENTO Y CONTROL PARA LA EJECUCIÓN DE LOS PROYECTOS DE INVERSIÓN A CARGO DE LA SECRETARÍA DE INFRAESTRUCTURA DE LA ALCALDÍA MUNICIPAL DE SILVIA CAUCA', '0000-00-00', '2026-01-16', 3, 'Secretaría de Infraestructura', '2026-01-16', 0, 0, NULL, NULL, 'En Ejecución', '2026-05-19 04:27:20', 0, 0, NULL, 0, 0, NULL, 0, 0, '2026-07-15', NULL, NULL, 'Activo', 'https://www.contratos.gov.co/entidades/entLogin.html'),
+(9, '020-2026', '202600000000050', '1. Silvia un referente de turismo', 2, 'Suministro', 'Mínima cuantía', 'Recursos Propios', 10500000.00, 'Único pago', '3 días', '', '025', '028', '1.2.2.5.3', 'PRUEBA', '0000-00-00', '2026-05-15', 3, 'Oficina Asesora Jurídica', '2026-05-19', 0, 0, NULL, NULL, 'En Ejecución', '2026-05-20 12:22:57', 0, 0, NULL, 0, 0, NULL, 0, 0, '2026-05-22', '0000-00-00', NULL, 'Activo', 'https://www.contratos.gov.co/entidades/entLogin.html');
 
 -- --------------------------------------------------------
 
@@ -161,6 +162,22 @@ CREATE TABLE `control_plataformas` (
 
 INSERT INTO `control_plataformas` (`id_control`, `id_contrato`, `estado_secop`, `url_secop`, `estado_sia_observa`, `observaciones`, `ultima_actualizacion`) VALUES
 (1, 2, 'Publicado', '', 'Cargado', '', '2026-04-19 05:37:48');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `pagos`
+--
+
+CREATE TABLE `pagos` (
+  `id_pago` int(11) NOT NULL,
+  `id_contrato` int(11) NOT NULL,
+  `numero_acta` varchar(50) NOT NULL COMMENT 'Ej: Anticipo, Acta 1, Acta Final',
+  `fecha_pago` date NOT NULL,
+  `valor_pagado` decimal(15,2) NOT NULL,
+  `observaciones` text DEFAULT NULL,
+  `fecha_registro` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -274,6 +291,13 @@ ALTER TABLE `control_plataformas`
   ADD UNIQUE KEY `id_contrato` (`id_contrato`);
 
 --
+-- Indices de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD PRIMARY KEY (`id_pago`),
+  ADD KEY `id_contrato` (`id_contrato`);
+
+--
 -- Indices de la tabla `presupuesto`
 --
 ALTER TABLE `presupuesto`
@@ -316,13 +340,19 @@ ALTER TABLE `contratistas`
 -- AUTO_INCREMENT de la tabla `contratos`
 --
 ALTER TABLE `contratos`
-  MODIFY `id_contrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id_contrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT de la tabla `control_plataformas`
 --
 ALTER TABLE `control_plataformas`
   MODIFY `id_control` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT de la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  MODIFY `id_pago` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT de la tabla `presupuesto`
@@ -365,6 +395,12 @@ ALTER TABLE `contratos`
 --
 ALTER TABLE `control_plataformas`
   ADD CONSTRAINT `control_plataformas_ibfk_1` FOREIGN KEY (`id_contrato`) REFERENCES `contratos` (`id_contrato`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Filtros para la tabla `pagos`
+--
+ALTER TABLE `pagos`
+  ADD CONSTRAINT `pagos_ibfk_1` FOREIGN KEY (`id_contrato`) REFERENCES `contratos` (`id_contrato`) ON DELETE CASCADE;
 
 --
 -- Filtros para la tabla `presupuesto`

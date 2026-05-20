@@ -91,8 +91,7 @@ class ContratoController {
         }
     }
 
-    public function show() {
-        // Permitimos que todos los roles activos vean los detalles
+public function show() {
         AuthHelper::permitir([1, 2, 3, 4]);
 
         if (!isset($_GET['id'])) {
@@ -108,7 +107,20 @@ class ContratoController {
             die("<div style='padding: 20px; color: red;'>El contrato solicitado no existe.</div>");
         }
 
-        // Cargar las vistas
+        // --- NUEVO: CARGAR DATOS FINANCIEROS ---
+        require_once 'models/Pago.php';
+        $pagoModel = new Pago();
+        $historial_pagos = $pagoModel->obtenerPorContrato($id);
+        $total_pagado = $pagoModel->obtenerTotalPagado($id);
+        
+        // Calcular Saldo y Porcentaje de Ejecución
+        $saldo_pendiente = $contrato['valor_total'] - $total_pagado;
+        $porcentaje = 0;
+        if ($contrato['valor_total'] > 0) {
+            $porcentaje = ($total_pagado / $contrato['valor_total']) * 100;
+        }
+        // ----------------------------------------
+
         require_once 'views/layout/header.php';
         require_once 'views/contratos/show.php';
         require_once 'views/layout/footer.php';

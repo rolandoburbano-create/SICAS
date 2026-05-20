@@ -66,6 +66,11 @@ switch ($controller) {
             $presupuestoController->$action();
         }
         break;
+
+    case 'pago': // <-- NUEVO
+        require_once 'controllers/PagoController.php';
+        $controller = new PagoController();
+        break;
     
     case 'plataforma':
         if (!isset($_SESSION['usuario_id'])) {
