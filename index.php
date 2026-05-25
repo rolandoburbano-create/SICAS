@@ -1,4 +1,8 @@
 <?php
+// ENCENDER REPORTES DE ERRORES (Borrar cuando el sistema pase a producción)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // Requerir configuración inicial
 require_once 'config/config.php';
@@ -67,9 +71,16 @@ switch ($controller) {
         }
         break;
 
-    case 'pago': // <-- NUEVO
+    case 'pago':
+        if (!isset($_SESSION['usuario_id'])) {
+            header("Location: " . BASE_URL . "index.php?controller=auth&action=showLogin");
+            exit();
+        }
         require_once 'controllers/PagoController.php';
-        $controller = new PagoController();
+        $pagoController = new PagoController();
+        if (method_exists($pagoController, $action)) {
+            $pagoController->$action();
+        }
         break;
     
     case 'plataforma':

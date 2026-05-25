@@ -6,7 +6,6 @@ class PagoController {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $pago = new Pago();
             
-            // Recolectar datos del formulario
             $datos = [
                 'id_contrato'   => $_POST['id_contrato'],
                 'numero_acta'   => $_POST['numero_acta'],
@@ -15,11 +14,13 @@ class PagoController {
                 'observaciones' => $_POST['observaciones'] ?? ''
             ];
 
-            $pago->registrar($datos);
-            
-            // Recargar la pantalla de detalles del contrato
-            header("Location: index.php?controller=contrato&action=show&id=" . $_POST['id_contrato']);
-            exit();
+            if($pago->registrar($datos)){
+                // Redirigir de vuelta al expediente actualizado
+                header("Location: index.php?controller=contrato&action=show&id=" . $_POST['id_contrato']);
+                exit();
+            } else {
+                die("Error al registrar el pago en la base de datos.");
+            }
         }
     }
 }
