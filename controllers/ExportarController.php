@@ -106,6 +106,8 @@ class ExportarController {
         'rubros_presupuestales' => ['label' => 'Rubros Presupuestales', 'icon' => 'fa-money-bill-trend-up', 'dateField' => 'c.fecha_elaboracion'],
     ];
 
+    private $entityOrder = ['contratos', 'contratistas', 'pagos', 'usuarios', 'rubros_presupuestales'];
+
     public function index() {
         AuthHelper::permitir([1]);
         $entityInfo = $this->entityInfo;
@@ -130,26 +132,34 @@ class ExportarController {
         $fecha_desde = $_POST['fecha_desde'] ?? '';
         $fecha_hasta = $_POST['fecha_hasta'] ?? '';
 
-        if (empty($campos)) {
+        if ($entidad !== 'todo' && empty($campos)) {
             echo "<script>alert('Debe seleccionar al menos un campo.'); window.history.back();</script>";
             exit();
         }
 
         $db = new Conexion();
         $conn = $db->getConnection();
-        $datos = $this->obtenerDatos($conn, $entidad, $campos, $fecha_desde, $fecha_hasta);
-        $labels = $this->fieldLabels[$entidad];
 
-        $headers = [];
-        foreach ($campos as $c) {
-            $headers[] = $labels[$c] ?? $c;
-        }
-
-        switch ($formato) {
-            case 'csv': $this->exportarCSV($headers, $datos); break;
-            case 'xls': $this->exportarXLS($headers, $datos, $entidad); break;
-            case 'pdf': $this->exportarPDF($headers, $datos, $entidad); break;
-            default: $this->exportarCSV($headers, $datos);
+        if ($entidad === 'todo') {
+            switch ($formato) {
+                case 'csv': $this->exportarCSVTodo($conn); break;
+                case 'xls': $this->exportarXLSTodo($conn); break;
+                case 'pdf': $this->exportarPDFTodo($conn); break;
+                default: $this->exportarCSVTodo($conn);
+            }
+        } else {
+            $datos = $this->obtenerDatos($conn, $entidad, $campos, $fecha_desde, $fecha_hasta);
+            $labels = $this->fieldLabels[$entidad];
+            $headers = [];
+            foreach ($campos as $c) {
+                $headers[] = $labels[$c] ?? $c;
+            }
+            switch ($formato) {
+                case 'csv': $this->exportarCSV($headers, $datos); break;
+                case 'xls': $this->exportarXLS($headers, $datos, $entidad); break;
+                case 'pdf': $this->exportarPDF($headers, $datos, $entidad); break;
+                default: $this->exportarCSV($headers, $datos);
+            }
         }
     }
 
@@ -296,6 +306,126 @@ class ExportarController {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <p class="footer">Sistema de Información Contractual - Alcaldía del Municipio de Silvia, Cauca.</p>
+            <script>window.print();</script>
+        </body>
+        </html>
+        <?php
+        exit();
+    }
+
+    private function exportarCSVTodo($conn) {
+        $fila = 0;
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="exportacion_completa_' . date('Ymd_His') . '.csv"');
+        $output = fopen('php://output', 'w');
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+        foreach ($this->entityOrder as $entidad) {
+            $campos = array_keys($this->fieldLabels[$entidad]);
+            $datos = $this->obtenerDatos($conn, $entidad, $campos, '', '');
+            $labels = $this->fieldLabels[$entidad];
+            $headers = [];
+            foreach ($campos as $c) {
+                $headers[] = $labels[$c] ?? $c;
+            }
+            if ($fila > 0) fputcsv($output, []); // blank row separator
+            fputcsv($output, ['=== ' . strtoupper($this->entityInfo[$entidad]['label']) . ' ===']);
+            fputcsv($output, $headers);
+            foreach ($datos as $filaDatos) {
+                $row = array_map(function($v) { return $v ?? ''; }, array_values($filaDatos));
+                fputcsv($output, $row);
+            }
+            $fila++;
+        }
+        fclose($output);
+        exit();
+    }
+
+    private function exportarXLSTodo($conn) {
+        header('Content-Type: application/vnd.ms-excel; charset=utf-8');
+        header('Content-Disposition: attachment; filename="exportacion_completa_' . date('Ymd_His') . '.xls"');
+        echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
+        echo '<head><meta charset="UTF-8"><style>';
+        echo 'h2 { color:#1B5E20; font-family:Arial; margin-top:20px; }';
+        echo 'table { border-collapse:collapse; margin-bottom:10px; }';
+        echo 'td, th { border:1px solid #ccc; padding:4px 8px; font-size:9pt; }';
+        echo 'th { background:#1B5E20; color:white; font-weight:bold; }';
+        echo '.sep { height:10px; }';
+        echo '</style></head><body>';
+
+        foreach ($this->entityOrder as $entidad) {
+            $campos = array_keys($this->fieldLabels[$entidad]);
+            $datos = $this->obtenerDatos($conn, $entidad, $campos, '', '');
+            $labels = $this->fieldLabels[$entidad];
+            $headers = [];
+            foreach ($campos as $c) {
+                $headers[] = $labels[$c] ?? $c;
+            }
+            echo '<h2>' . htmlspecialchars($this->entityInfo[$entidad]['label']) . '</h2>';
+            echo '<table><tr><th>' . implode('</th><th>', array_map('htmlspecialchars', $headers)) . '</th></tr>';
+            foreach ($datos as $filaDatos) {
+                echo '<tr>';
+                foreach (array_values($filaDatos) as $valor) {
+                    echo '<td>' . htmlspecialchars($valor ?? '') . '</td>';
+                }
+                echo '</tr>';
+            }
+            echo '</table>';
+        }
+        echo '</body></html>';
+        exit();
+    }
+
+    private function exportarPDFTodo($conn) {
+        $fecha = date('d/m/Y H:i:s');
+        ?>
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Exportación Completa</title>
+            <style>
+                body { font-family: Arial, sans-serif; font-size: 10pt; margin: 20px; }
+                h1 { color: #1B5E20; border-bottom: 2px solid #1B5E20; padding-bottom: 6px; }
+                h2 { color: #1B5E20; margin-top: 24px; font-size: 12pt; }
+                .fecha { color: #666; font-size: 9pt; margin-bottom: 20px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+                th { background: #1B5E20; color: white; padding: 5px 6px; text-align: left; font-size: 7pt; }
+                td { padding: 3px 6px; border-bottom: 1px solid #ddd; font-size: 7pt; }
+                tr:nth-child(even) { background: #f5f5f5; }
+                .footer { margin-top: 20px; font-size: 8pt; color: #999; text-align: center; border-top: 1px solid #ddd; padding-top: 8px; }
+                .page-break { page-break-before: always; }
+                @media print { body { margin: 10px; } }
+            </style>
+        </head>
+        <body>
+            <h1>Exportación Completa del Sistema</h1>
+            <p class="fecha">Generado el <?= $fecha ?> - Sistema SICAS - Alcaldía de Silvia</p>
+            <?php foreach ($this->entityOrder as $i => $entidad):
+                $campos = array_keys($this->fieldLabels[$entidad]);
+                $datos = $this->obtenerDatos($conn, $entidad, $campos, '', '');
+                $labels = $this->fieldLabels[$entidad];
+                $headers = [];
+                foreach ($campos as $c) {
+                    $headers[] = $labels[$c] ?? $c;
+                }
+            ?>
+            <?php if ($i > 0): ?><div class="page-break"></div><?php endif; ?>
+            <h2><?= htmlspecialchars($this->entityInfo[$entidad]['label']) ?></h2>
+            <table>
+                <thead><tr><th><?= implode('</th><th>', array_map('htmlspecialchars', $headers)) ?></th></tr></thead>
+                <tbody>
+                    <?php foreach ($datos as $filaDatos): ?>
+                    <tr>
+                        <?php foreach (array_values($filaDatos) as $valor): ?>
+                        <td><?= htmlspecialchars($valor ?? '') ?></td>
+                        <?php endforeach; ?>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <?php endforeach; ?>
             <p class="footer">Sistema de Información Contractual - Alcaldía del Municipio de Silvia, Cauca.</p>
             <script>window.print();</script>
         </body>
