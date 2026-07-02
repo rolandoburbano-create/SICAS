@@ -119,6 +119,9 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Disable all checkboxes initially (todo mode)
+    document.querySelectorAll('.campo-chk').forEach(function(cb) { cb.disabled = true; });
+
     document.querySelectorAll('.entidad-btn').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var val = this.getAttribute('data-value');
@@ -139,11 +142,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             this.classList.add('active');
             document.querySelector('.formato-radio[value="' + val + '"]').checked = true;
+            // PDF opens in new tab, others same tab
+            document.getElementById('formExportar').target = val === 'pdf' ? '_blank' : '';
         });
     });
 });
 
 function toggleCampos(entidad) {
+    // Disable ALL checkboxes first
+    document.querySelectorAll('.campo-chk').forEach(function(cb) {
+        cb.disabled = true;
+    });
     if (entidad === 'todo') {
         document.querySelectorAll('[id^="campos_"]').forEach(function(el) {
             el.classList.add('hidden');
@@ -159,7 +168,13 @@ function toggleCampos(entidad) {
             el.classList.add('hidden');
         });
         var target = document.getElementById('campos_' + entidad);
-        if (target) target.classList.remove('hidden');
+        if (target) {
+            target.classList.remove('hidden');
+            // Enable checkboxes of the selected entity
+            target.querySelectorAll('.campo-chk').forEach(function(cb) {
+                cb.disabled = false;
+            });
+        }
     }
 }
 

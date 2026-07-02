@@ -132,6 +132,12 @@ class ExportarController {
         $fecha_desde = $_POST['fecha_desde'] ?? '';
         $fecha_hasta = $_POST['fecha_hasta'] ?? '';
 
+        // Only keep campos that belong to the selected entity
+        if ($entidad !== 'todo' && isset($this->fieldLabels[$entidad])) {
+            $validos = array_keys($this->fieldLabels[$entidad]);
+            $campos = array_intersect($campos, $validos);
+        }
+
         if ($entidad !== 'todo' && empty($campos)) {
             echo "<script>alert('Debe seleccionar al menos un campo.'); window.history.back();</script>";
             exit();
