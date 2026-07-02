@@ -57,17 +57,60 @@ class ExportarController {
             'entidad_bancaria'   => 'Entidad Bancaria',
             'tipo_cuenta'        => 'Tipo de Cuenta',
             'numero_cuenta'      => 'No. de Cuenta',
-        ]
+            'creado_en'          => 'Fecha de Registro',
+        ],
+        'pagos' => [
+            'numero_contrato'    => 'No. Contrato',
+            'numero_acta'        => 'Acta / Concepto',
+            'fecha_pago'         => 'Fecha de Pago',
+            'valor_pagado'       => 'Valor Pagado',
+            'observaciones'      => 'Observaciones',
+            'fecha_registro'     => 'Fecha de Registro',
+        ],
+        'usuarios' => [
+            'nombres'            => 'Nombres',
+            'apellidos'          => 'Apellidos',
+            'rol_nombre'         => 'Rol de Acceso',
+            'documento'          => 'No. Documento',
+            'tipo_documento'     => 'Tipo de Documento',
+            'tipo_persona'       => 'Tipo de Persona',
+            'correo'             => 'Correo Electrónico',
+            'secretaria'         => 'Secretaría',
+            'tipo_vinculacion'   => 'Tipo de Vinculación',
+            'estado'             => 'Estado',
+            'creado_en'          => 'Fecha de Creación',
+        ],
+        'rubros_presupuestales' => [
+            'numero_contrato'    => 'No. Contrato',
+            'rubro'              => 'Rubro Presupuestal',
+            'vigencia'           => 'Vigencia',
+            'origen_recurso'     => 'Origen del Recurso',
+            'tipo'               => 'Tipo',
+            'valor'              => 'Valor',
+        ],
     ];
 
     private $defaultFields = [
         'contratos'    => ['numero_contrato', 'objeto_contrato', 'valor_total', 'forma_pago', 'nombre_contratista', 'nombre_supervisor', 'tipo_contrato', 'modalidad_seleccion', 'secretaria', 'fecha_firma', 'fecha_inicio', 'fecha_terminacion', 'plazo_ejecucion', 'estado_contrato'],
         'contratistas' => ['tipo_persona', 'tipo_documento', 'documento', 'nombre_razon_social', 'direccion', 'telefono', 'correo', 'entidad_bancaria', 'tipo_cuenta', 'numero_cuenta'],
+        'pagos'        => ['numero_contrato', 'numero_acta', 'fecha_pago', 'valor_pagado', 'observaciones'],
+        'usuarios'     => ['nombres', 'apellidos', 'rol_nombre', 'documento', 'correo', 'secretaria', 'estado'],
+        'rubros_presupuestales' => ['numero_contrato', 'rubro', 'vigencia', 'origen_recurso', 'tipo', 'valor'],
+    ];
+
+    private $entityInfo = [
+        'contratos'    => ['label' => 'Contratos', 'icon' => 'fa-file-contract', 'dateField' => 'c.fecha_elaboracion'],
+        'contratistas' => ['label' => 'Contratistas', 'icon' => 'fa-user-group', 'dateField' => 'creado_en'],
+        'pagos'        => ['label' => 'Pagos', 'icon' => 'fa-money-bill-wave', 'dateField' => 'p.fecha_pago'],
+        'usuarios'     => ['label' => 'Usuarios', 'icon' => 'fa-user-shield', 'dateField' => 'u.creado_en'],
+        'rubros_presupuestales' => ['label' => 'Rubros Presupuestales', 'icon' => 'fa-money-bill-trend-up', 'dateField' => 'c.fecha_elaboracion'],
     ];
 
     public function index() {
         AuthHelper::permitir([1]);
-
+        $entityInfo = $this->entityInfo;
+        $fieldLabels = $this->fieldLabels;
+        $defaultFields = $this->defaultFields;
         require_once 'views/layout/header.php';
         require_once 'views/exportar/index.php';
         require_once 'views/layout/footer.php';
@@ -84,6 +127,8 @@ class ExportarController {
         $entidad   = $_POST['entidad'] ?? 'contratos';
         $campos    = $_POST['campos'] ?? [];
         $formato   = $_POST['formato'] ?? 'csv';
+        $fecha_desde = $_POST['fecha_desde'] ?? '';
+        $fecha_hasta = $_POST['fecha_hasta'] ?? '';
 
         if (empty($campos)) {
             echo "<script>alert('Debe seleccionar al menos un campo.'); window.history.back();</script>";
@@ -92,75 +137,105 @@ class ExportarController {
 
         $db = new Conexion();
         $conn = $db->getConnection();
-        $datos = $this->obtenerDatos($conn, $entidad, $campos);
+        $datos = $this->obtenerDatos($conn, $entidad, $campos, $fecha_desde, $fecha_hasta);
         $labels = $this->fieldLabels[$entidad];
 
-        // Mapear labels en orden de selección
         $headers = [];
         foreach ($campos as $c) {
             $headers[] = $labels[$c] ?? $c;
         }
 
         switch ($formato) {
-            case 'csv':
-                $this->exportarCSV($headers, $datos);
-                break;
-            case 'xls':
-                $this->exportarXLS($headers, $datos, $entidad);
-                break;
-            case 'pdf':
-                $this->exportarPDF($headers, $datos, $entidad);
-                break;
-            default:
-                $this->exportarCSV($headers, $datos);
+            case 'csv': $this->exportarCSV($headers, $datos); break;
+            case 'xls': $this->exportarXLS($headers, $datos, $entidad); break;
+            case 'pdf': $this->exportarPDF($headers, $datos, $entidad); break;
+            default: $this->exportarCSV($headers, $datos);
         }
     }
 
-    private function obtenerDatos($conn, $entidad, $campos) {
+    private function obtenerDatos($conn, $entidad, $campos, $fecha_desde = '', $fecha_hasta = '') {
+        $where = '';
+        $params = [];
+
+        if ($fecha_desde || $fecha_hasta) {
+            $dateField = $this->entityInfo[$entidad]['dateField'];
+            $clauses = [];
+            if ($fecha_desde) { $clauses[] = "$dateField >= ?"; $params[] = $fecha_desde; }
+            if ($fecha_hasta) { $clauses[] = "$dateField <= ?"; $params[] = $fecha_hasta . ' 23:59:59'; }
+            $where = 'WHERE ' . implode(' AND ', $clauses);
+        }
+
         if ($entidad === 'contratos') {
-            $mapaCampos = [
+            $mapa = [
                 'nombre_contratista' => "con.nombre_razon_social AS nombre_contratista",
                 'nombre_supervisor'  => "CONCAT(u.nombres, ' ', u.apellidos) AS nombre_supervisor",
             ];
             $selects = [];
             foreach ($campos as $c) {
-                if (isset($mapaCampos[$c])) {
-                    $selects[] = $mapaCampos[$c];
-                } else {
-                    $selects[] = "c.{$c}";
-                }
+                $selects[] = isset($mapa[$c]) ? $mapa[$c] : "c.{$c}";
             }
             $sql = "SELECT " . implode(', ', $selects) . "
                     FROM contratos c
                     LEFT JOIN contratistas con ON c.id_contratista = con.id_contratista
                     LEFT JOIN usuarios u ON c.id_supervisor = u.id_usuario
+                    $where
                     ORDER BY c.fecha_elaboracion DESC";
-        } else {
+        } elseif ($entidad === 'contratistas') {
             $selects = array_map(function($c) { return "{$c}"; }, $campos);
             $sql = "SELECT " . implode(', ', $selects) . "
                     FROM contratistas
+                    $where
                     ORDER BY nombre_razon_social ASC";
+        } elseif ($entidad === 'pagos') {
+            $mapa = ['numero_contrato' => "c.numero_contrato"];
+            $selects = [];
+            foreach ($campos as $c) {
+                $selects[] = isset($mapa[$c]) ? $mapa[$c] : "p.{$c}";
+            }
+            $sql = "SELECT " . implode(', ', $selects) . "
+                    FROM pagos p
+                    LEFT JOIN contratos c ON p.id_contrato = c.id_contrato
+                    $where
+                    ORDER BY p.fecha_pago DESC";
+        } elseif ($entidad === 'usuarios') {
+            $mapa = ['rol_nombre' => "r.nombre_rol AS rol_nombre"];
+            $selects = [];
+            foreach ($campos as $c) {
+                $selects[] = isset($mapa[$c]) ? $mapa[$c] : "u.{$c}";
+            }
+            $sql = "SELECT " . implode(', ', $selects) . "
+                    FROM usuarios u
+                    LEFT JOIN roles r ON u.id_rol = r.id_rol
+                    $where
+                    ORDER BY u.nombres ASC";
+        } elseif ($entidad === 'rubros_presupuestales') {
+            $mapa = ['numero_contrato' => "c.numero_contrato"];
+            $selects = [];
+            foreach ($campos as $c) {
+                $selects[] = isset($mapa[$c]) ? $mapa[$c] : "r.{$c}";
+            }
+            $sql = "SELECT " . implode(', ', $selects) . "
+                    FROM rubros_presupuestales r
+                    LEFT JOIN contratos c ON r.id_contrato = c.id_contrato
+                    $where
+                    ORDER BY c.numero_contrato ASC";
+        } else {
+            return [];
         }
 
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function exportarCSV($headers, $datos) {
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="exportacion_' . date('Ymd_His') . '.csv"');
-        header('Pragma: no-cache');
-
         $output = fopen('php://output', 'w');
-        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM UTF-8
+        fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
         fputcsv($output, $headers);
-
         foreach ($datos as $fila) {
-            $row = [];
-            foreach ($fila as $valor) {
-                $row[] = $valor ?? '';
-            }
+            $row = array_map(function($v) { return $v ?? ''; }, array_values($fila));
             fputcsv($output, $row);
         }
         fclose($output);
@@ -170,15 +245,13 @@ class ExportarController {
     private function exportarXLS($headers, $datos, $entidad) {
         header('Content-Type: application/vnd.ms-excel; charset=utf-8');
         header('Content-Disposition: attachment; filename="exportacion_' . date('Ymd_His') . '.xls"');
-        header('Pragma: no-cache');
-
         echo '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">';
-        echo '<head><meta charset="UTF-8"><style>td, th { border: 1px solid #ccc; padding: 4px 8px; } th { background: #1B5E20; color: white; font-weight: bold; }</style></head>';
+        echo '<head><meta charset="UTF-8"><style>td, th { border: 1px solid #ccc; padding: 4px 8px; } th { background: #1B5E20; color: white; font-weight: bold; font-size: 10pt; } td { font-size: 9pt; }</style></head>';
         echo '<body><table>';
         echo '<tr><th>' . implode('</th><th>', array_map('htmlspecialchars', $headers)) . '</th></tr>';
         foreach ($datos as $fila) {
             echo '<tr>';
-            foreach ($fila as $valor) {
+            foreach (array_values($fila) as $valor) {
                 echo '<td>' . htmlspecialchars($valor ?? '') . '</td>';
             }
             echo '</tr>';
@@ -188,7 +261,7 @@ class ExportarController {
     }
 
     private function exportarPDF($headers, $datos, $entidad) {
-        $titulo = $entidad === 'contratos' ? 'Contratos' : 'Contratistas';
+        $titulo = $this->entityInfo[$entidad]['label'] ?? $entidad;
         $fecha = date('d/m/Y H:i:s');
         ?>
         <!DOCTYPE html>
@@ -212,13 +285,11 @@ class ExportarController {
             <h1>Exportación de <?= $titulo ?></h1>
             <p class="fecha">Generado el <?= $fecha ?> - Sistema SICAS - Alcaldía de Silvia</p>
             <table>
-                <thead>
-                    <tr><th><?= implode('</th><th>', array_map('htmlspecialchars', $headers)) ?></th></tr>
-                </thead>
+                <thead><tr><th><?= implode('</th><th>', array_map('htmlspecialchars', $headers)) ?></th></tr></thead>
                 <tbody>
                     <?php foreach ($datos as $fila): ?>
                     <tr>
-                        <?php foreach ($fila as $valor): ?>
+                        <?php foreach (array_values($fila) as $valor): ?>
                         <td><?= htmlspecialchars($valor ?? '') ?></td>
                         <?php endforeach; ?>
                     </tr>
