@@ -66,6 +66,12 @@
                     <span class="sidebar-text">Supervisores / Usuarios</span>
                 </a>
             </li>
+            <li>
+                <a href="<?php echo BASE_URL; ?>index.php?controller=exportar&action=index" class="hover:bg-white/10 transition-colors" title="Exportar Datos">
+                    <i class="fa-solid fa-download w-6 text-center opacity-80"></i>
+                    <span class="sidebar-text">Exportar Datos</span>
+                </a>
+            </li>
         <?php endif; ?>
     </ul>
 

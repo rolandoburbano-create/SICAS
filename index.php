@@ -102,6 +102,13 @@ switch ($controller) {
         if (method_exists($usuarioController, $action)) { $usuarioController->$action(); }
         break;
 
+    case 'exportar':
+        if (!isset($_SESSION['usuario_id'])) { header("Location: index.php"); exit(); }
+        require_once 'controllers/ExportarController.php';
+        $exportarController = new ExportarController();
+        if (method_exists($exportarController, $action)) { $exportarController->$action(); }
+        break;
+
     default:
         echo "<h1 style='text-align:center; color:red; margin-top:50px;'>Error 404: Controlador no encontrado.</h1>";
         break;
