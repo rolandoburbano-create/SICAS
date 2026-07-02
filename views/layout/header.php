@@ -11,19 +11,44 @@
 
     <style>
         [data-theme="light"] {
-            /* --p (Primary): Tu Verde Institucional Puro (#008000) */
-            --p: 52% 0.177 142.5; 
-            /* --pf (Primary Focus): Verde ligeramente más oscuro para el efecto 'Hover' al pasar el mouse */
-            --pf: 46% 0.177 142.5; 
-            /* --pc (Primary Content): Texto blanco sobre los botones verdes */
-            --pc: 100% 0 0; 
-            
-            /* --n (Neutral): Verde MUY oscuro casi negro para el menú lateral */
-            --n: 28% 0.88 142.5; 
-            /* --nc (Neutral Content): Texto blanco sobre el menú lateral */
-            --nc: 100% 0 0; 
+            --p: 52% 0.177 142.5;
+            --pf: 46% 0.177 142.5;
+            --pc: 100% 0 0;
+            --n: 28% 0.88 142.5;
+            --nc: 100% 0 0;
         }
+        aside::-webkit-scrollbar {
+            width: 4px;
+        }
+        aside::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        aside::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+        aside::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        #sidebar { transition: width 0.3s ease; overflow-x: hidden; }
+        #sidebar .sidebar-text { transition: opacity 0.2s ease; white-space: nowrap; }
+        #sidebar-logo { transition: height 0.3s ease; }
+
+        .sidebar-mini #sidebar { width: 5rem; }
+        .sidebar-mini #sidebar .sidebar-text { opacity: 0; display: none; }
+        .sidebar-mini #sidebar-logo { height: 2.5rem; margin-bottom: 0; }
+        .sidebar-mini #sidebar .menu a { justify-content: center; padding-left: 0; padding-right: 0; }
+        .sidebar-mini #sidebar .menu i { margin-right: 0 !important; font-size: 1.25rem; }
+        .sidebar-mini #sidebar .menu-title { display: none; }
+        .sidebar-mini #sidebar .sidebar-footer { display: none; }
     </style>
+
+    <script>
+        if (localStorage.getItem('sidebarColapsado') === 'true') {
+            document.documentElement.classList.add('sidebar-mini');
+        }
+    </script>
 </head>
 <body class="bg-base-200 flex h-screen overflow-hidden text-base-content">
 
@@ -32,10 +57,10 @@
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
         
         <div class="navbar bg-primary text-primary-content shadow-md z-10 px-4">
-            <div class="flex-1">
-                <label for="my-drawer" class="btn btn-square btn-ghost md:hidden">
+            <div class="flex-1 flex items-center">
+                <button id="btnToggleSidebar" class="btn btn-square btn-ghost hover:bg-white/20">
                     <i class="fa-solid fa-bars text-xl"></i>
-                </label>
+                </button>
                 <a class="text-lg font-bold ml-2 hidden sm:block">Sistema de Información Contractual - Alcaldía de Silvia</a>
             </div>
             <div class="flex-none gap-4">

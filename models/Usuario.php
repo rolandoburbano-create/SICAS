@@ -10,9 +10,25 @@ class Usuario {
         $this->conn = $database->getConnection();
     }
 
+    public function listarTodos() {
+        $query = "SELECT u.id_usuario, u.nombres, u.apellidos, u.correo, u.id_rol, u.estado, u.documento, u.tipo_vinculacion, u.secretaria
+                  FROM " . $this->table_name . " u 
+                  ORDER BY u.nombres ASC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerPorId($id_usuario) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id_usuario = :id_usuario";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id_usuario", $id_usuario);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function login($correo, $password) {
-        // Consulta segura con INNER JOIN para traer también el nombre del rol
-        $query = "SELECT u.id_usuario, u.nombres, u.apellidos, u.password, u.estado, r.nombre_rol 
+        $query = "SELECT u.id_usuario, u.nombres, u.apellidos, u.password, u.estado, u.id_rol, r.nombre_rol 
                   FROM " . $this->table_name . " u
                   INNER JOIN roles r ON u.id_rol = r.id_rol
                   WHERE u.correo = :correo LIMIT 0,1";
@@ -23,8 +39,6 @@ class Usuario {
 
         if ($stmt->rowCount() > 0) {
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Verificar si el usuario está Activo y si la contraseña coincide
             if ($row['estado'] == 'Activo' && password_verify($password, $row['password'])) {
                 return $row;
             }
@@ -32,34 +46,73 @@ class Usuario {
         return false;
     }
     
-    // Registrar un nuevo usuario/supervisor
     public function registrar($datos) {
         try {
             $query = "INSERT INTO " . $this->table_name . " 
-                    (id_rol, tipo_persona, tipo_documento, documento, nombres, apellidos, tipo_vinculacion, secretaria, correo, password) 
-                    VALUES 
-                    (:id_rol, :tipo_persona, :tipo_doc, :doc, :nombres, :apellidos, :vinculacion, :secretaria, :correo, :pass)";
+                      (id_rol, tipo_persona, tipo_documento, documento, nombres, apellidos, tipo_vinculacion, secretaria, correo, password, estado) 
+                      VALUES (:id_rol, 'Natural', 'CC', :documento, :nombres, :apellidos, 'Carrera Administrativa', '', :correo, :password, 'Activo')";
             
             $stmt = $this->conn->prepare($query);
-            
-            // Encriptar contraseña por defecto (puede ser el documento)
-            $password_hash = password_hash($datos['documento'], PASSWORD_BCRYPT);
+            $password_encriptada = password_hash($datos['password'], PASSWORD_BCRYPT);
 
             return $stmt->execute([
-                ':id_rol' => $datos['id_rol'],
-                ':tipo_persona' => $datos['tipo_persona'],
-                ':tipo_doc' => $datos['tipo_documento'],
-                ':doc' => $datos['documento'],
-                ':nombres' => $datos['nombres'],
+                ':id_rol'    => $datos['id_rol'],
+                ':documento' => $datos['documento'],
+                ':nombres'   => $datos['nombres'],
                 ':apellidos' => $datos['apellidos'],
-                ':vinculacion' => $datos['tipo_vinculacion'],
-                ':secretaria' => $datos['secretaria'],
-                ':correo' => $datos['correo'],
-                ':pass' => $password_hash
+                ':correo'    => $datos['correo'],
+                ':password'  => $password_encriptada
             ]);
-        } catch (PDOException $e) {
+        } catch(PDOException $e) {
+            return false;
+        }
+    }
+    
+    public function actualizar($datos) {
+        try {
+            $query = "UPDATE " . $this->table_name . " 
+                      SET nombres = :nombres, apellidos = :apellidos, correo = :correo, id_rol = :id_rol, estado = :estado
+                      WHERE id_usuario = :id_usuario";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([
+                ':id_usuario' => $datos['id_usuario'],
+                ':nombres'    => $datos['nombres'],
+                ':apellidos'  => $datos['apellidos'],
+                ':correo'     => $datos['correo'],
+                ':id_rol'     => $datos['id_rol'],
+                ':estado'     => $datos['estado']
+            ]);
+        } catch(PDOException $e) {
+            return false;
+        }
+    }
+
+    public function eliminar($id_usuario) {
+        try {
+            $query = "DELETE FROM " . $this->table_name . " WHERE id_usuario = :id_usuario";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":id_usuario", $id_usuario);
+            return $stmt->execute();
+        } catch(PDOException $e) {
+            return false;
+        }
+    }
+
+    public function cambiarPassword($id_usuario, $nueva_password) {
+        try {
+            $query = "UPDATE " . $this->table_name . " 
+                      SET password = :password 
+                      WHERE id_usuario = :id_usuario";
+            
+            $stmt = $this->conn->prepare($query);
+            $password_encriptada = password_hash($nueva_password, PASSWORD_BCRYPT);
+
+            return $stmt->execute([
+                ':password'   => $password_encriptada,
+                ':id_usuario' => $id_usuario
+            ]);
+        } catch(PDOException $e) {
             return false;
         }
     }
 }
-?>

@@ -164,6 +164,7 @@
             </div>
         </div>
 
+        <?php if(AuthHelper::esAdmin()): ?>
         <div class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body">
                 <div class="divider divider-start text-primary font-bold uppercase text-s">IV. Cronología</div>
@@ -276,6 +277,7 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?>
         
         <div class="flex justify-end pt-6">
             <button type="submit" class="btn btn-primary btn-lg shadow-xl px-12">

@@ -4,5 +4,18 @@
         </footer>
 
     </div>
-    </body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var btnToggle = document.getElementById('btnToggleSidebar');
+
+            if (btnToggle) {
+                btnToggle.addEventListener('click', function() {
+                    var isMini = document.documentElement.classList.toggle('sidebar-mini');
+                    localStorage.setItem('sidebarColapsado', isMini);
+                });
+            }
+        });
+    </script>
+</body>
 </html>

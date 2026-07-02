@@ -1,1 +1,6 @@
-conexion.php
+config/conexion.php
+data/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

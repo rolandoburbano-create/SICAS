@@ -92,6 +92,7 @@
             </div>
         </div>
 
+        <?php if(AuthHelper::esAdmin() || AuthHelper::esRadicacion()): ?>
         <div class="card bg-primary text-primary-content shadow-xl">
             <div class="card-body">
                 <h2 class="card-title font-black uppercase tracking-widest text-sm italic">Acciones Rápidas</h2>
@@ -99,17 +100,20 @@
                     <a href="index.php?controller=contrato&action=create" class="btn btn-block bg-white text-primary border-none shadow-md">
                         <i class="fa-solid fa-plus-circle"></i> Nueva Radicación
                     </a>
+                    <?php if(AuthHelper::esAdmin()): ?>
                     <a href="index.php?controller=contratista&action=create" class="btn btn-block bg-white/20 text-white border-none hover:bg-white/30">
                         <i class="fa-solid fa-user-plus"></i> Crear Contratista
                     </a>
-                    <a href="index.php?controller=usuario&action=create" class="btn btn-block bg-white/20 text-white border-none hover:bg-white/30">
+                    <a href="index.php?controller=usuario&action=index" class="btn btn-block bg-white/20 text-white border-none hover:bg-white/30">
                         <i class="fa-solid fa-user-shield"></i> Registrar Supervisor
                     </a>
+                    <?php endif; ?>
                 </div>
                 <div class="mt-6 text-[10px] text-center opacity-70">
                     SISTEMA DE GESTIÓN MUNICIPAL - SILVIA
                 </div>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </div>

@@ -110,7 +110,7 @@ CREATE TABLE `contratos` (
   `id_supervisor` int(11) NOT NULL,
   `secretaria` varchar(150) NOT NULL,
   `fecha_inicio` date NOT NULL,
-  `fecha_reinicio` tinyint(1) DEFAULT 0,
+  `fecha_reinicio` date DEFAULT NULL,
   `tiene_cesion` tinyint(1) DEFAULT 0,
   `fecha_cesion` date DEFAULT NULL,
   `id_nuevo_contratista` int(11) DEFAULT NULL,
@@ -206,6 +206,32 @@ INSERT INTO `presupuesto` (`id_presupuesto`, `id_contrato`, `rubros_presupuestal
 -- --------------------------------------------------------
 
 --
+-- Estructura de tabla para la tabla `rubros_presupuestales`
+--
+
+CREATE TABLE `rubros_presupuestales` (
+  `id_rubro` int(11) NOT NULL,
+  `id_contrato` int(11) NOT NULL,
+  `rubro` varchar(255) NOT NULL,
+  `vigencia` varchar(10) DEFAULT NULL,
+  `origen_recurso` varchar(150) DEFAULT NULL,
+  `tipo` varchar(100) DEFAULT NULL,
+  `valor` decimal(15,2) NOT NULL DEFAULT 0.00
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+ALTER TABLE `rubros_presupuestales`
+  ADD PRIMARY KEY (`id_rubro`),
+  ADD KEY `id_contrato` (`id_contrato`);
+
+ALTER TABLE `rubros_presupuestales`
+  ADD CONSTRAINT `rubros_presupuestales_ibfk_1` FOREIGN KEY (`id_contrato`) REFERENCES `contratos` (`id_contrato`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE `rubros_presupuestales`
+  MODIFY `id_rubro` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
 -- Estructura de tabla para la tabla `roles`
 --
 
@@ -223,7 +249,8 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`, `descripcion`) VALUES
 (1, 'Administrador Contractual', 'Acceso total'),
 (2, 'Financiero / Presupuesto', 'Edición financiera'),
 (3, 'Consulta / Control Interno', 'Solo lectura'),
-(4, 'Supervisor de Contrato', 'Edición de novedades');
+(4, 'Supervisor de Contrato', 'Edición de novedades'),
+(5, 'Radicación', 'Creación de contratos');
 
 -- --------------------------------------------------------
 

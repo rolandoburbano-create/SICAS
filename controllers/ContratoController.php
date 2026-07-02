@@ -5,25 +5,46 @@ require_once 'models/Contratista.php'; // <--- ¡Esta es la línea que falta!
 
 class ContratoController {
     
-// Vista principal: Panel de Contratos (Listado)
     public function index() {
         $contratoModel = new Contrato();
-        $contratos = $contratoModel->listar(); // Esto trae los contratos de la BD
+        $termino = isset($_GET['q']) ? trim($_GET['q']) : '';
 
-        // 1. Cargar el Header y Sidebar
+        $alertas_vencimiento = [];
+
+        if (AuthHelper::esSupervisor()) {
+            $id_usuario = $_SESSION['usuario_id'];
+            $contratos = $termino
+                ? $contratoModel->buscarPorSupervisor($termino, $id_usuario)
+                : $contratoModel->listarPorSupervisor($id_usuario);
+
+            foreach ($contratos as &$c) {
+                if (!empty($c['fecha_terminacion']) && $c['fecha_terminacion'] != '0000-00-00') {
+                    $hoy = new DateTime();
+                    $f_term = new DateTime($c['fecha_terminacion']);
+                    $diff = $hoy->diff($f_term);
+                    $dias = $hoy <= $f_term ? (int)$diff->days : -(int)$diff->days;
+                    $c['dias_restantes'] = $dias;
+                    if ($dias <= 8) {
+                        $alertas_vencimiento[] = $c;
+                    }
+                } else {
+                    $c['dias_restantes'] = null;
+                }
+            }
+            unset($c);
+        } else {
+            $contratos = $termino ? $contratoModel->buscar($termino) : $contratoModel->listar();
+        }
+
         require_once 'views/layout/header.php';
-
-        // 2. Cargar la vista de la tabla
         require_once 'views/contratos/index.php';
-
-        // 3. Cargar el Footer
         require_once 'views/layout/footer.php';
     }
     // Insertar DENTRO de la clase ContratoController
 
     // Cargar la vista con el formulario
     public function create() {
-        // 1. Obtener los contratistas
+        AuthHelper::permitir([1, 5]);
         $contratistaModel = new Contratista();
         $contratistas = $contratistaModel->listarTodos();
 
@@ -43,7 +64,7 @@ class ContratoController {
 
     // Recibir los datos del formulario POST y guardarlos
     public function store() {
-        AuthHelper::permitir([1]); // Solo Admin
+        AuthHelper::permitir([1, 5]);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $contratoModel = new Contrato();
@@ -58,7 +79,7 @@ class ContratoController {
                 'id_contratista'         => $_POST['id_contratista'],
                 'id_supervisor'          => $_POST['id_supervisor'],
                 'fecha_firma'            => $_POST['fecha_firma'] ?? null,
-                'fecha_inicio'           => $_POST['fecha_inicio'] ?? null,
+                'fecha_inicio'           => $_POST['fecha_inicio'] ?? date('Y-m-d'),
                 'fecha_terminacion'      => $_POST['fecha_terminacion'] ?? null,
                 
                 // --- NUEVOS CAMPOS DE EJECUCIÓN REAL ---
@@ -66,7 +87,7 @@ class ContratoController {
                 'plazo_ejecucion_real'   => $_POST['plazo_ejecucion_real'] ?? '',
                 // ----------------------------------------
                 
-                'plazo_ejecucion'        => $_POST['plazo_ejecucion'] ?? '',
+                'plazo_ejecucion'        => $_POST['plazo_ejecucion'] ?? 'Por definir',
                 'cdp'                    => $_POST['cdp'] ?? '',
                 'rp'                     => $_POST['rp'] ?? '',
                 'rubro_presupuestal'     => $_POST['rubro_presupuestal'] ?? '',
@@ -92,7 +113,7 @@ class ContratoController {
     }
 
 public function show() {
-        AuthHelper::permitir([1, 2, 3, 4]);
+        AuthHelper::permitir([1, 2, 3, 4, 5]);
 
         if (!isset($_GET['id'])) {
             header("Location: index.php?controller=contrato&action=index");
@@ -105,6 +126,15 @@ public function show() {
 
         if (!$contrato) {
             die("<div style='padding: 20px; color: red;'>El contrato solicitado no existe.</div>");
+        }
+
+        // Supervisor solo ve sus propios contratos
+        if (AuthHelper::esSupervisor() && $contrato['id_supervisor'] != $_SESSION['usuario_id']) {
+            die("<div style='padding: 20px; color: red; font-family: sans-serif;'>
+                    <h3><i class='fa-solid fa-lock'></i> Acceso Denegado</h3>
+                    <p>Este contrato no está bajo su supervisión.</p>
+                    <a href='index.php' class='btn btn-primary mt-4'>Volver al inicio</a>
+                 </div>");
         }
 
         // --- NUEVO: CARGAR DATOS FINANCIEROS ---
@@ -128,7 +158,7 @@ public function show() {
 
     public function edit() {
         // 🔒 PERMISOS: Admin(1), Financiero(2), Supervisor(4)
-        AuthHelper::permitir([1, 2, 4]);
+        AuthHelper::permitir([1]);
 
         // Validar que venga un ID en la URL
         if (!isset($_GET['id'])) {
@@ -164,8 +194,7 @@ public function show() {
     }
 
     public function update() {
-        // 🔒 PERMISOS: Admin, Financiero, Supervisor
-        AuthHelper::permitir([1, 2, 4]);
+        AuthHelper::permitir([1]);
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['id_contrato'])) {
             $id = $_POST['id_contrato'];
@@ -189,13 +218,21 @@ public function show() {
                 'forma_pago' => $_POST['forma_pago'] ?? $contratoOriginal['forma_pago'],
                 
                 // Novedades (Si el rol es financiero, estos inputs vienen vacíos/nulos, así que conservamos el original)
-                'tiene_prorroga' => isset($_POST['tiene_prorroga']) ? 1 : (AuthHelper::esFinanciero() ? $contratoOriginal['tiene_prorroga'] : 0),
+                'tiene_prorroga' => isset($_POST['tiene_prorroga']) ? 1 : $contratoOriginal['tiene_prorroga'],
                 'numero_prorroga' => $_POST['numero_prorroga'] ?? $contratoOriginal['numero_prorroga'],
                 'tiempo_prorroga' => $_POST['tiempo_prorroga'] ?? $contratoOriginal['tiempo_prorroga'],
                 
-                'tiene_suspension' => isset($_POST['tiene_suspension']) ? 1 : (AuthHelper::esFinanciero() ? $contratoOriginal['tiene_suspension'] : 0),
+                'tiene_suspension' => isset($_POST['tiene_suspension']) ? 1 : $contratoOriginal['tiene_suspension'],
                 'numero_suspension' => $_POST['numero_suspension'] ?? $contratoOriginal['numero_suspension'],
-                'duracion_suspension' => $_POST['duracion_suspension'] ?? $contratoOriginal['duracion_suspension']
+                'duracion_suspension' => $_POST['duracion_suspension'] ?? $contratoOriginal['duracion_suspension'],
+
+                'tiene_reinicio' => isset($_POST['tiene_reinicio']) ? 1 : $contratoOriginal['tiene_reinicio'],
+                'numero_reinicio' => $_POST['numero_reinicio'] ?? $contratoOriginal['numero_reinicio'],
+                'fecha_reinicio' => $_POST['fecha_reinicio'] ?? $contratoOriginal['fecha_reinicio'],
+
+                'tiene_cesion' => isset($_POST['tiene_cesion']) ? 1 : $contratoOriginal['tiene_cesion'],
+                'fecha_cesion' => $_POST['fecha_cesion'] ?? $contratoOriginal['fecha_cesion'],
+                'id_nuevo_contratista' => $_POST['id_nuevo_contratista'] ?? $contratoOriginal['id_nuevo_contratista']
             ];
 
             // 3. Enviar a guardar en la base de datos

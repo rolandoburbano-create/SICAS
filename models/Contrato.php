@@ -23,6 +23,52 @@ class Contrato {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function buscar($termino) {
+        $query = "SELECT c.id_contrato, c.numero_contrato, c.tipo_contrato, c.valor_total, c.estado_contrato, c.fecha_terminacion, c.objeto_contrato, con.nombre_razon_social 
+                  FROM " . $this->table_name . " c
+                  INNER JOIN contratistas con ON c.id_contratista = con.id_contratista
+                  WHERE c.numero_contrato LIKE ? 
+                     OR con.nombre_razon_social LIKE ? 
+                     OR c.objeto_contrato LIKE ? 
+                  ORDER BY c.fecha_elaboracion DESC";
+                 
+        $stmt = $this->conn->prepare($query);
+        $termino = "%{$termino}%";
+        $stmt->execute([$termino, $termino, $termino]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function listarPorSupervisor($id_usuario) {
+        $query = "SELECT c.id_contrato, c.numero_contrato, c.tipo_contrato, c.valor_total,
+                         c.estado_contrato, c.fecha_terminacion, c.objeto_contrato,
+                         con.nombre_razon_social
+                  FROM " . $this->table_name . " c
+                  INNER JOIN contratistas con ON c.id_contratista = con.id_contratista
+                  WHERE c.id_supervisor = ?
+                  ORDER BY c.fecha_elaboracion DESC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$id_usuario]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function buscarPorSupervisor($termino, $id_usuario) {
+        $query = "SELECT c.id_contrato, c.numero_contrato, c.tipo_contrato, c.valor_total,
+                         c.estado_contrato, c.fecha_terminacion, c.objeto_contrato,
+                         con.nombre_razon_social
+                  FROM " . $this->table_name . " c
+                  INNER JOIN contratistas con ON c.id_contratista = con.id_contratista
+                  WHERE c.id_supervisor = ?
+                    AND (c.numero_contrato LIKE ?
+                         OR con.nombre_razon_social LIKE ?
+                         OR c.objeto_contrato LIKE ?)
+                  ORDER BY c.fecha_elaboracion DESC";
+        $stmt = $this->conn->prepare($query);
+        $termino = "%{$termino}%";
+        $stmt->execute([$id_usuario, $termino, $termino, $termino]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Insertar este código DENTRO de la clase Contrato, debajo de la función listar()
 
     public function registrar($datos, $id_usuario) {
@@ -143,7 +189,13 @@ class Contrato {
                       tiempo_prorroga = :ti_pro,
                       tiene_suspension = :t_sus,
                       numero_suspension = :n_sus,
-                      duracion_suspension = :d_sus
+                      duracion_suspension = :d_sus,
+                      tiene_reinicio = :t_rei,
+                      numero_reinicio = :n_rei,
+                      fecha_reinicio = :f_rei,
+                      tiene_cesion = :t_ces,
+                      fecha_cesion = :f_ces,
+                      id_nuevo_contratista = :id_nuevo
                   WHERE id_contrato = :id";
         
         $stmt = $this->conn->prepare($query);
@@ -159,6 +211,12 @@ class Contrato {
             ':t_sus' => $datos['tiene_suspension'],
             ':n_sus' => $datos['numero_suspension'],
             ':d_sus' => $datos['duracion_suspension'],
+            ':t_rei' => $datos['tiene_reinicio'],
+            ':n_rei' => $datos['numero_reinicio'],
+            ':f_rei' => $datos['fecha_reinicio'],
+            ':t_ces' => $datos['tiene_cesion'],
+            ':f_ces' => $datos['fecha_cesion'],
+            ':id_nuevo' => $datos['id_nuevo_contratista'],
             ':id' => $datos['id_contrato']
         ]);
     }

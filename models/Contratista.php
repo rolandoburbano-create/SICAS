@@ -10,7 +10,6 @@ class Contratista {
         $this->conn = $database->getConnection();
     }
 
-    // Listar todos los contratistas para el formulario (Select)
     public function listarTodos() {
         $query = "SELECT id_contratista, documento, nombre_razon_social FROM " . $this->table_name . " ORDER BY nombre_razon_social ASC";
         $stmt = $this->conn->prepare($query);
@@ -18,7 +17,32 @@ class Contratista {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-// Registrar un nuevo contratista de forma segura con todos los campos
+    public function listarTodosCompleto() {
+        $query = "SELECT * FROM " . $this->table_name . " ORDER BY nombre_razon_social ASC";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function buscar($termino) {
+        $query = "SELECT * FROM " . $this->table_name . " 
+                  WHERE documento LIKE ? 
+                     OR nombre_razon_social LIKE ? 
+                  ORDER BY nombre_razon_social ASC";
+        $stmt = $this->conn->prepare($query);
+        $termino = "%{$termino}%";
+        $stmt->execute([$termino, $termino]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function obtenerPorId($id_contratista) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE id_contratista = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":id", $id_contratista);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function registrar($datos, $id_usuario) {
         try {
             $this->conn->beginTransaction();
@@ -45,7 +69,6 @@ class Contratista {
 
             $id_contratista_nuevo = $this->conn->lastInsertId();
 
-            // Registrar en Auditoría
             $queryAuditoria = "INSERT INTO auditoria (id_usuario, accion, tabla_afectada, registro_id, detalles_nuevos, direccion_ip) 
                                VALUES (:user, 'INSERT', 'contratistas', :reg_id, :detalles, :ip)";
             $stmtAuditoria = $this->conn->prepare($queryAuditoria);
@@ -67,5 +90,43 @@ class Contratista {
             return false;
         }
     }    
+
+    public function actualizar($datos) {
+        try {
+            $query = "UPDATE " . $this->table_name . " 
+                      SET tipo_persona = :tipo_persona, tipo_documento = :tipo_documento, documento = :documento, 
+                          nombre_razon_social = :nombre_razon_social, genero = :genero, direccion = :direccion, 
+                          telefono = :telefono, correo = :correo, entidad_bancaria = :entidad_bancaria, 
+                          tipo_cuenta = :tipo_cuenta, numero_cuenta = :numero_cuenta 
+                      WHERE id_contratista = :id_contratista";
+            $stmt = $this->conn->prepare($query);
+            return $stmt->execute([
+                ':id_contratista' => $datos['id_contratista'],
+                ':tipo_persona' => $datos['tipo_persona'],
+                ':tipo_documento' => $datos['tipo_documento'],
+                ':documento' => $datos['documento'],
+                ':nombre_razon_social' => $datos['nombre_razon_social'],
+                ':genero' => $datos['genero'],
+                ':direccion' => $datos['direccion'],
+                ':telefono' => $datos['telefono'],
+                ':correo' => $datos['correo'],
+                ':entidad_bancaria' => $datos['entidad_bancaria'],
+                ':tipo_cuenta' => $datos['tipo_cuenta'],
+                ':numero_cuenta' => $datos['numero_cuenta']
+            ]);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public function eliminar($id_contratista) {
+        try {
+            $query = "DELETE FROM " . $this->table_name . " WHERE id_contratista = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(":id", $id_contratista);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
 }
-?>

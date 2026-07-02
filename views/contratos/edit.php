@@ -10,6 +10,7 @@ $bloquearFinanzas = (AuthHelper::esSupervisor()) ? 'readonly class="input input-
 // 3. ¿Quién puede editar las Novedades y Tiempos? (Admin y Supervisor)
 $bloquearNovedades = (AuthHelper::esFinanciero()) ? 'disabled class="toggle toggle-disabled"' : 'class="toggle toggle-primary"';
 $bloquearInputsNovedades = (AuthHelper::esFinanciero()) ? 'readonly class="input input-xs input-bordered bg-base-200 cursor-not-allowed"' : 'class="input input-xs input-bordered w-full"';
+$bloquearSelectNovedades = (AuthHelper::esFinanciero()) ? 'disabled class="select select-xs select-bordered bg-base-200 cursor-not-allowed"' : 'class="select select-xs select-bordered w-full"';
 ?>
 
 <div class="max-w-5xl mx-auto space-y-6">
@@ -50,12 +51,20 @@ $bloquearInputsNovedades = (AuthHelper::esFinanciero()) ? 'readonly class="input
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold text-lg text-primary">Valor Total ($)</span></label>
-                        <input type="number" step="0.01" name="valor_total" value="<?= $contrato['valor_total'] ?>" <?= $bloquearFinanzas ?> />
+                        <label class="label"><span class="label-text font-bold text-primary">Valor Total ($)</span></label>
+                        <input type="number" step="0.01" name="valor_total" value="<?= $contrato['valor_total'] ?>" class="input input-bordered border-primary w-full" <?= AuthHelper::esSupervisor() ? 'readonly' : '' ?> />
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Forma de Pago</span></label>
-                        <input type="text" name="forma_pago" value="<?= htmlspecialchars($contrato['forma_pago']) ?>" <?= $bloquearFinanzas ?> />
+                        <?php if(AuthHelper::esSupervisor()): ?>
+                            <select name="forma_pago" disabled class="select select-bordered bg-base-200 opacity-70 cursor-not-allowed w-full">
+                        <?php else: ?>
+                            <select name="forma_pago" class="select select-bordered w-full">
+                        <?php endif; ?>
+                            <option value="Actas mensuales" <?= $contrato['forma_pago'] == 'Actas mensuales' ? 'selected' : '' ?>>Actas mensuales</option>
+                            <option value="Actas parciales" <?= $contrato['forma_pago'] == 'Actas parciales' ? 'selected' : '' ?>>Actas parciales</option>
+                            <option value="Único pago" <?= $contrato['forma_pago'] == 'Único pago' ? 'selected' : '' ?>>Único pago</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -78,7 +87,7 @@ $bloquearInputsNovedades = (AuthHelper::esFinanciero()) ? 'readonly class="input
                         </div>
                         <div class="flex gap-2">
                             <input type="number" name="numero_prorroga" value="<?= $contrato['numero_prorroga'] ?>" placeholder="No." <?= $bloquearInputsNovedades ?> />
-                            <input type="text" name="tiempo_prorroga" value="<?= htmlspecialchars($contrato['tiempo_prorroga']) ?>" placeholder="Tiempo" <?= $bloquearInputsNovedades ?> />
+                            <input type="text" name="tiempo_prorroga" value="<?= htmlspecialchars($contrato['tiempo_prorroga'] ?? '') ?>" placeholder="Tiempo" <?= $bloquearInputsNovedades ?> />
                         </div>
                     </div>
 
@@ -89,7 +98,34 @@ $bloquearInputsNovedades = (AuthHelper::esFinanciero()) ? 'readonly class="input
                         </div>
                         <div class="flex gap-2">
                             <input type="number" name="numero_suspension" value="<?= $contrato['numero_suspension'] ?>" placeholder="No." <?= $bloquearInputsNovedades ?> />
-                            <input type="text" name="duracion_suspension" value="<?= htmlspecialchars($contrato['duracion_suspension']) ?>" placeholder="Duración" <?= $bloquearInputsNovedades ?> />
+                            <input type="text" name="duracion_suspension" value="<?= htmlspecialchars($contrato['duracion_suspension'] ?? '') ?>" placeholder="Duración" <?= $bloquearInputsNovedades ?> />
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-base-200 rounded-box border-l-4 border-info">
+                        <div class="form-control flex-row items-center justify-between mb-2">
+                            <span class="label-text font-bold">¿Tiene Reinicio?</span>
+                            <input type="checkbox" name="tiene_reinicio" <?= $contrato['tiene_reinicio'] ? 'checked' : '' ?> <?= $bloquearNovedades ?> />
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="number" name="numero_reinicio" value="<?= $contrato['numero_reinicio'] ?>" placeholder="No." <?= $bloquearInputsNovedades ?> />
+                            <input type="date" name="fecha_reinicio" value="<?= $contrato['fecha_reinicio'] ?>" <?= $bloquearInputsNovedades ?> />
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-base-200 rounded-box border-l-4 border-error">
+                        <div class="form-control flex-row items-center justify-between mb-2">
+                            <span class="label-text font-bold">¿Tiene Cesión?</span>
+                            <input type="checkbox" name="tiene_cesion" <?= $contrato['tiene_cesion'] ? 'checked' : '' ?> <?= $bloquearNovedades ?> />
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="date" name="fecha_cesion" value="<?= $contrato['fecha_cesion'] ?? '' ?>" <?= $bloquearInputsNovedades ?> />
+                            <select name="id_nuevo_contratista" <?= $bloquearSelectNovedades ?>>
+                                <option value="">Nuevo Contratista...</option>
+                                <?php foreach($contratistas as $con): ?>
+                                    <option value="<?= $con['id_contratista'] ?>" <?= $contrato['id_nuevo_contratista'] == $con['id_contratista'] ? 'selected' : '' ?>><?= $con['nombre_razon_social'] ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
                 </div>

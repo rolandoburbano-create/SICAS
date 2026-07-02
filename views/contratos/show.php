@@ -22,7 +22,7 @@
                 </button>
             <?php endif; ?>
 
-            <?php if(AuthHelper::esAdmin() || AuthHelper::esFinanciero() || AuthHelper::esSupervisor()): ?>
+            <?php if(AuthHelper::esAdmin()): ?>
                 <a href="index.php?controller=contrato&action=edit&id=<?= $contrato['id_contrato'] ?>" class="btn btn-warning btn-sm text-white flex-1 md:flex-none shadow-sm gap-1">
                     <i class="fa-solid fa-pen-to-square"></i> Editar
                 </a>
@@ -125,6 +125,12 @@
                         <div><span class="text-xs font-bold opacity-60 uppercase block">RP:</span> <span class="font-semibold text-neutral"><?= htmlspecialchars($contrato['rp'] ?: 'N/A') ?></span></div>
                         <div><span class="text-xs font-bold opacity-60 uppercase block">Rubro Presupuestal:</span> <span class="font-mono text-xs font-bold bg-base-200 px-1.5 py-0.5 rounded inline-block mt-0.5"><?= htmlspecialchars($contrato['rubro_presupuestal'] ?: 'N/A') ?></span></div>
                     </div>
+
+                    <div class="pt-2 border-t border-base-200 text-center">
+                        <a href="index.php?controller=presupuesto&action=gestionar&id=<?= $contrato['id_contrato'] ?>" class="btn btn-outline btn-primary btn-sm gap-2">
+                            <i class="fa-solid fa-money-bill-trend-up"></i> Gestión Presupuestal
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -132,9 +138,11 @@
                 <div class="card-body">
                     <div class="flex justify-between items-center mb-2">
                         <div class="divider divider-start text-primary font-bold uppercase text-xs m-0 flex-1">V. Historial de Pagos y Actas</div>
-                        <button class="btn btn-sm btn-primary text-white shadow-xs gap-1" onclick="modal_pago.showModal()">
-                            <i class="fa-solid fa-plus"></i> Registrar Pago
-                        </button>
+                        <?php if(AuthHelper::esAdmin() || AuthHelper::esFinanciero()): ?>
+                            <button class="btn btn-sm btn-primary text-white shadow-xs gap-1" onclick="modal_pago.showModal()">
+                                <i class="fa-solid fa-plus"></i> Registrar Pago
+                            </button>
+                        <?php endif; ?>
                     </div>
 
                     <?php if(empty($historial_pagos)): ?>

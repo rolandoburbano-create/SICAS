@@ -20,6 +20,7 @@
         <p class="text-sm text-gray-700"><?php echo htmlspecialchars($contrato['objeto_contrato']); ?></p>
     </div>
 
+    <?php if(AuthHelper::esAdmin() || AuthHelper::esFinanciero()): ?>
     <form action="<?php echo BASE_URL; ?>index.php?controller=plataforma&action=store" method="POST">
         <input type="hidden" name="id_contrato" value="<?php echo $_GET['id']; ?>">
 
@@ -82,4 +83,11 @@
             </button>
         </div>
     </form>
+    <?php else: ?>
+        <div class="bg-gray-100 border border-gray-200 p-8 rounded-lg text-center">
+            <i class="fa-solid fa-eye-slash text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-lg font-bold text-gray-500">Solo lectura</h3>
+            <p class="text-gray-400 text-sm mt-1">No tienes permisos para modificar el estado de las plataformas.</p>
+        </div>
+    <?php endif; ?>
 </div>

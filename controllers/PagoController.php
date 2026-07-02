@@ -1,8 +1,11 @@
 <?php
 require_once 'models/Pago.php';
+require_once 'helpers/AuthHelper.php';
 
 class PagoController {
     public function store() {
+        // CERROJO: Solo Admin (1) y Finanzas/Presupuesto (2)
+        AuthHelper::permitir([1, 2]);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $pago = new Pago();
             

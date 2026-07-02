@@ -1,11 +1,12 @@
 <?php
 require_once 'models/ControlPlataforma.php';
-require_once 'models/Contrato.php'; // Para obtener datos básicos del contrato
+require_once 'models/Contrato.php';
+require_once 'helpers/AuthHelper.php';
 
 class PlataformaController {
     
-    // Muestra la vista para gestionar el estado en SECOP y SIA
     public function gestionar() {
+        AuthHelper::permitir([1, 2, 3, 4]);
         if (!isset($_GET['id'])) {
             header("Location: " . BASE_URL . "index.php?controller=contrato&action=index");
             exit();
@@ -33,8 +34,8 @@ class PlataformaController {
         require_once 'views/layout/footer.php';
     }
 
-    // Procesa el guardado del formulario
     public function store() {
+        AuthHelper::permitir([1, 2]);
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $plataformaModel = new ControlPlataforma();
             

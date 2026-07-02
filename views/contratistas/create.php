@@ -6,7 +6,7 @@
                     <h1 class="text-2xl font-bold text-base-content">Registrar Contratista</h1>
                     <p class="text-sm opacity-60">Complete la ficha técnica del contratista para pagos y notificaciones.</p>
                 </div>
-                <a href="<?php echo BASE_URL; ?>index.php?controller=contrato&action=create" class="btn btn-ghost btn-sm gap-2">
+                <a href="<?php echo BASE_URL; ?>index.php?controller=contratista&action=index" class="btn btn-ghost btn-sm gap-2">
                     <i class="fa-solid fa-arrow-left"></i> Volver
                 </a>
             </div>

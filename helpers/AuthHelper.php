@@ -30,4 +30,5 @@ class AuthHelper {
     public static function esFinanciero() { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 2; }
     public static function esConsulta() { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 3; }
     public static function esSupervisor() { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 4; }
+    public static function esRadicacion() { return isset($_SESSION['usuario_rol']) && $_SESSION['usuario_rol'] == 5; }
 }
