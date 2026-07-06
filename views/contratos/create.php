@@ -55,14 +55,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Contratista *</span></label>
-                        <select name="id_contratista" required class="select select-bordered w-full">
-                            <option value="">Seleccione al Contratista...</option>
-                            <?php foreach($contratistas as $con): ?>
-                                <option value="<?= $con['id_contratista'] ?>">
-                                    <?= $con['documento'] ?> - <?= $con['nombre_razon_social'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                        <div class="relative" id="contratista-autocomplete">
+                            <input type="text" id="contratista-search" class="input input-bordered w-full" placeholder="Busque por nombre, apellido o documento..." autocomplete="off">
+                            <input type="hidden" name="id_contratista" id="contratista-id">
+                            <div id="contratista-results" class="absolute z-50 w-full mt-1 bg-white shadow-lg border border-base-300 rounded-box hidden max-h-60 overflow-y-auto"></div>
+                        </div>
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Supervisor *</span></label>
@@ -266,12 +263,11 @@
                         </div>
                         <div class="space-y-2 mt-2">
                             <input type="date" name="fecha_cesion" class="input input-xs input-bordered w-full" />
-                            <select name="id_nuevo_contratista" class="select select-bordered select-xs w-full">
-                                <option value="">Nuevo Contratista...</option>
-                                <?php foreach($contratistas as $con): ?>
-                                    <option value="<?= $con['id_contratista'] ?>"><?= $con['nombre_razon_social'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <div class="relative" id="nuevo-contratista-autocomplete">
+                                <input type="text" id="nuevo-contratista-search" class="input input-xs input-bordered w-full" placeholder="Buscar contratista..." autocomplete="off">
+                                <input type="hidden" name="id_nuevo_contratista" id="nuevo-contratista-id">
+                                <div id="nuevo-contratista-results" class="absolute z-50 w-full mt-1 bg-white shadow-lg border border-base-300 rounded-box hidden max-h-40 overflow-y-auto text-xs"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -286,6 +282,85 @@
         </div>
 
         <script>
+        function initAutocomplete(config) {
+            const searchInput = document.getElementById(config.searchId);
+            const hiddenInput = document.getElementById(config.hiddenId);
+            const resultsDiv = document.getElementById(config.resultsId);
+            let timeout = null;
+            let selected = false;
+
+            if (!searchInput) return;
+
+            function fetchResults(termino) {
+                const url = config.url + '&q=' + encodeURIComponent(termino);
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+                        if (data.length === 0) {
+                            resultsDiv.classList.add('hidden');
+                            return;
+                        }
+                        resultsDiv.classList.remove('hidden');
+                        data.forEach(item => {
+                            const div = document.createElement('div');
+                            div.className = 'px-3 py-2 cursor-pointer hover:bg-primary hover:text-primary-content border-b border-base-200';
+                            div.textContent = item.documento + ' - ' + item.nombre;
+                            div.addEventListener('click', function() {
+                                searchInput.value = item.documento + ' - ' + item.nombre;
+                                hiddenInput.value = item.id;
+                                resultsDiv.classList.add('hidden');
+                                selected = true;
+                            });
+                            resultsDiv.appendChild(div);
+                        });
+                    });
+            }
+
+            searchInput.addEventListener('input', function() {
+                const termino = this.value.trim();
+                hiddenInput.value = '';
+                selected = false;
+                if (termino.length < 1) {
+                    resultsDiv.classList.add('hidden');
+                    return;
+                }
+                clearTimeout(timeout);
+                timeout = setTimeout(function() {
+                    fetchResults(termino);
+                }, 300);
+            });
+
+            searchInput.addEventListener('blur', function() {
+                setTimeout(function() {
+                    resultsDiv.classList.add('hidden');
+                }, 200);
+            });
+
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim().length >= 1 && resultsDiv.children.length > 0) {
+                    resultsDiv.classList.remove('hidden');
+                }
+            });
+
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    resultsDiv.classList.add('hidden');
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!resultsDiv.classList.contains('hidden') && resultsDiv.children.length > 0) {
+                        resultsDiv.children[0].click();
+                    }
+                }
+            });
+
+            if (config.initialText) {
+                searchInput.value = config.initialText;
+                hiddenInput.value = config.initialValue;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const inputInicio = document.getElementById('fecha_inicio_calc');
             const inputFinEst = document.getElementById('fecha_terminacion_calc');
@@ -294,7 +369,6 @@
             const inputFinReal = document.getElementById('fecha_terminacion_real_calc');
             const inputPlazoReal = document.getElementById('plazo_ejecucion_real_calc');
 
-            // Función unificada para calcular la diferencia exacta en días
             function obtenerDiferenciaDias(fechaInicioVal, fechaFinVal) {
                 if (!fechaInicioVal || !fechaFinVal) return "";
                 
@@ -325,7 +399,6 @@
                 }
             }
 
-            // Escuchar cambios en los controles de fecha
             if (inputInicio) {
                 inputInicio.addEventListener('change', function() {
                     calcularPlazoEstimado();
@@ -338,6 +411,20 @@
             if (inputFinReal) {
                 inputFinReal.addEventListener('change', calcularPlazoReal);
             }
+
+            initAutocomplete({
+                searchId: 'contratista-search',
+                hiddenId: 'contratista-id',
+                resultsId: 'contratista-results',
+                url: 'index.php?controller=contratista&action=buscarJson'
+            });
+
+            initAutocomplete({
+                searchId: 'nuevo-contratista-search',
+                hiddenId: 'nuevo-contratista-id',
+                resultsId: 'nuevo-contratista-results',
+                url: 'index.php?controller=contratista&action=buscarJson'
+            });
         });
         </script>
     </form>

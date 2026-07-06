@@ -101,6 +101,26 @@ class ContratistaController {
         }
     }
 
+    public function buscarJson() {
+        $contratistaModel = new Contratista();
+        $termino = isset($_GET['q']) ? trim($_GET['q']) : '';
+        if ($termino === '') {
+            $resultados = $contratistaModel->listarTodos();
+        } else {
+            $resultados = $contratistaModel->buscar($termino);
+        }
+        $data = array_map(function($c) {
+            return [
+                'id' => $c['id_contratista'],
+                'documento' => $c['documento'],
+                'nombre' => $c['nombre_razon_social']
+            ];
+        }, $resultados);
+        header('Content-Type: application/json');
+        echo json_encode($data);
+        exit;
+    }
+
     public function delete() {
         AuthHelper::permitir([1]);
         if (isset($_GET['id'])) {
