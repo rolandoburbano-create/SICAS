@@ -227,18 +227,17 @@ class Contrato {
                       (numero_contrato, objeto_contrato, valor_total, forma_pago, 
                        id_contratista, id_supervisor, fecha_firma, fecha_inicio, 
                        fecha_terminacion, fecha_terminacion_real, plazo_ejecucion, plazo_ejecucion_real, 
-                       cdp, rp, rubro_presupuestal, link_secop, bpin, linea_estrategica, 
+                       cdp, fecha_cdp, valor_cdp, rp, rubro_presupuestal, link_secop, bpin, linea_estrategica, 
                        tipo_contrato, modalidad_seleccion, fuente_recursos, secretaria, estado) 
                       VALUES 
                       (:num, :obj, :val, :pago, 
                        :id_con, :id_sup, :f_firma, :f_inicio, 
                        :f_term, :f_term_real, :plazo, :plazo_real, 
-                       :cdp, :rp, :rubro, :secop, :bpin, :linea, 
+                       :cdp, :f_cdp, :v_cdp, :rp, :rubro, :secop, :bpin, :linea, 
                        :tipo, :modalidad, :fuente, :secretaria, :est)";
             
             $stmt = $this->conn->prepare($query);
-            
-            return $stmt->execute([
+            $stmt->execute([
                 ':num'          => $datos['numero_contrato'],
                 ':obj'          => $datos['objeto_contrato'],
                 ':val'          => $datos['valor_total'],
@@ -252,6 +251,8 @@ class Contrato {
                 ':plazo'        => $datos['plazo_ejecucion'],
                 ':plazo_real'   => $datos['plazo_ejecucion_real'],
                 ':cdp'          => $datos['cdp'],
+                ':f_cdp'        => $datos['fecha_cdp'] ?? null,
+                ':v_cdp'        => $datos['valor_cdp'] ?? null,
                 ':rp'           => $datos['rp'],
                 ':rubro'        => $datos['rubro_presupuestal'],
                 ':secop'        => $datos['link_secop'],
@@ -263,6 +264,7 @@ class Contrato {
                 ':secretaria'   => $datos['secretaria'],
                 ':est'          => $datos['estado']
             ]);
+            return (int)$this->conn->lastInsertId();
 
         } catch (PDOException $e) {
             die("<div style='background: black; color: red; padding: 20px; font-family: monospace;'>

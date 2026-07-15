@@ -144,10 +144,18 @@
                     </div>
                     <!-- NUEVOS CAMPOS PRESUPUESTALES -->
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 border-t pt-4 border-base-300">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6 border-t pt-4 border-base-300">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Número CDP</span></label>
                         <input type="text" name="cdp" placeholder="Ej: 2026-001" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Fecha CDP</span></label>
+                        <input type="date" name="fecha_cdp" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Valor CDP ($)</span></label>
+                        <input type="number" step="0.05" name="valor_cdp" placeholder="0.00" class="input input-bordered w-full" />
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Número RP</span></label>

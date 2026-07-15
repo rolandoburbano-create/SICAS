@@ -89,6 +89,8 @@ class ContratoController {
                 
                 'plazo_ejecucion'        => $_POST['plazo_ejecucion'] ?? 'Por definir',
                 'cdp'                    => $_POST['cdp'] ?? '',
+                'fecha_cdp'              => $_POST['fecha_cdp'] ?? null,
+                'valor_cdp'              => $_POST['valor_cdp'] ?? null,
                 'rp'                     => $_POST['rp'] ?? '',
                 'rubro_presupuestal'     => $_POST['rubro_presupuestal'] ?? '',
                 'link_secop'             => $_POST['link_secop'] ?? '',
@@ -102,8 +104,9 @@ class ContratoController {
             ];
 
             try {
-                if ($contratoModel->crear($datos)) {
-                    header("Location: index.php?controller=contrato&action=index");
+                $nuevoId = $contratoModel->crear($datos);
+                if ($nuevoId) {
+                    header("Location: index.php?controller=contrato&action=ticket&id=" . $nuevoId);
                     exit();
                 }
             } catch (Exception $e) {
@@ -244,6 +247,54 @@ public function show() {
                 echo "<script>alert('Error al actualizar el contrato en la base de datos'); window.history.back();</script>";
             }
         }
+    }
+
+    public function ticket() {
+        AuthHelper::permitir([1, 5]);
+
+        if (!isset($_GET['id'])) {
+            header("Location: index.php?controller=contrato&action=index");
+            exit();
+        }
+
+        $id = $_GET['id'];
+        $contratoModel = new Contrato();
+        $contrato = $contratoModel->obtenerDetallePorId($id);
+
+        if (!$contrato) {
+            die("El contrato no existe.");
+        }
+
+        require_once 'models/Contratista.php';
+        $conModel = new Contratista();
+        $contratista = $conModel->obtenerPorId($contrato['id_contratista']);
+
+        $digitoVerificacion = $this->calcularDigitoVerificacion($contratista);
+
+        $diferencia = $contrato['valor_total'] - ($contrato['valor_cdp'] ?? 0);
+
+        $qrUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http')
+               . "://{$_SERVER['HTTP_HOST']}/alcaldia-silvia/index.php?controller=contrato&action=show&id={$id}";
+
+        require_once 'views/layout/header_ticket.php';
+        require_once 'views/contratos/ticket.php';
+        require_once 'views/layout/footer_ticket.php';
+    }
+
+    private function calcularDigitoVerificacion($contratista) {
+        if (!$contratista || $contratista['tipo_documento'] !== 'NIT') {
+            return 'N/A';
+        }
+        $nit = preg_replace('/[^0-9]/', '', $contratista['documento']);
+        $pesos = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
+        $suma = 0;
+        $len = strlen($nit);
+        for ($i = 0; $i < $len; $i++) {
+            $digito = (int)$nit[$len - 1 - $i];
+            $suma += $digito * ($pesos[$i] ?? 1);
+        }
+        $mod = $suma % 11;
+        return ($mod >= 2) ? (string)(11 - $mod) : (string)$mod;
     }
 }
 ?>
