@@ -173,7 +173,7 @@
         <div class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body">
                 <div class="divider divider-start text-primary font-bold uppercase text-s">IV. Cronología</div>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 <?= AuthHelper::esAdmin() ? 'md:grid-cols-4' : 'md:grid-cols-3' ?> gap-4">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Firma *</span></label>
                         <input type="date" name="fecha_firma" class="input input-bordered" />
