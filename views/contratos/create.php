@@ -169,7 +169,7 @@
             </div>
         </div>
 
-        <?php if(AuthHelper::esAdmin()): ?>
+        <?php if(AuthHelper::esAdmin() || AuthHelper::esRadicacion()): ?>
         <div class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body">
                 <div class="divider divider-start text-primary font-bold uppercase text-s">IV. Cronología</div>
@@ -208,7 +208,9 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
+        <?php if(AuthHelper::esAdmin()): ?>
         <!-- ENLACE SECOP -->
         <div class="card bg-base-100 shadow-md border border-base-300 mb-6">
             <div class="card-body">
