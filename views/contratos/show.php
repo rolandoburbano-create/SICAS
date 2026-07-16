@@ -120,10 +120,13 @@
                         <progress class="progress progress-success w-full h-3 shadow-xs" value="<?= $porcentaje ?>" max="100"></progress>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-sm border-t border-base-200 opacity-90">
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-2 pt-2 text-sm border-t border-base-200 opacity-90">
                         <div><span class="text-xs font-bold opacity-60 uppercase block">CDP:</span> <span class="font-semibold text-neutral"><?= htmlspecialchars($contrato['cdp'] ?: 'N/A') ?></span></div>
+                        <div><span class="text-xs font-bold opacity-60 uppercase block">Fecha CDP:</span> <span class="font-semibold text-neutral"><?= $contrato['fecha_cdp'] && $contrato['fecha_cdp'] != '0000-00-00' ? date('d/m/Y', strtotime($contrato['fecha_cdp'])) : 'N/A' ?></span></div>
+                        <div><span class="text-xs font-bold opacity-60 uppercase block">Valor CDP:</span> <span class="font-semibold text-neutral"><?= $contrato['valor_cdp'] ? '$' . number_format($contrato['valor_cdp'], 0, ',', '.') : 'N/A' ?></span></div>
                         <div><span class="text-xs font-bold opacity-60 uppercase block">RP:</span> <span class="font-semibold text-neutral"><?= htmlspecialchars($contrato['rp'] ?: 'N/A') ?></span></div>
-                        <div><span class="text-xs font-bold opacity-60 uppercase block">Rubro Presupuestal:</span> <span class="font-mono text-xs font-bold bg-base-200 px-1.5 py-0.5 rounded inline-block mt-0.5"><?= htmlspecialchars($contrato['rubro_presupuestal'] ?: 'N/A') ?></span></div>
+                        <div><span class="text-xs font-bold opacity-60 uppercase block">Valor RP:</span> <span class="font-semibold text-neutral"><?= $contrato['valor_rp'] ? '$' . number_format($contrato['valor_rp'], 0, ',', '.') : 'N/A' ?></span></div>
+                        <div><span class="text-xs font-bold opacity-60 uppercase block">Rubro:</span> <span class="font-mono text-xs font-bold bg-base-200 px-1.5 py-0.5 rounded inline-block mt-0.5"><?= htmlspecialchars($contrato['rubro_presupuestal'] ?: 'N/A') ?></span></div>
                     </div>
 
                     <div class="pt-2 border-t border-base-200 text-center">

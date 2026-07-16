@@ -92,6 +92,7 @@ class ContratoController {
                 'fecha_cdp'              => $_POST['fecha_cdp'] ?? null,
                 'valor_cdp'              => $_POST['valor_cdp'] ?? null,
                 'rp'                     => $_POST['rp'] ?? '',
+                'valor_rp'               => $_POST['valor_rp'] ?? null,
                 'rubro_presupuestal'     => $_POST['rubro_presupuestal'] ?? '',
                 'link_secop'             => $_POST['link_secop'] ?? '',
                 'bpin'                   => $_POST['bpin'] ?? '',
@@ -220,6 +221,13 @@ public function show() {
                 'valor_total' => $_POST['valor_total'] ?? $contratoOriginal['valor_total'],
                 'forma_pago' => $_POST['forma_pago'] ?? $contratoOriginal['forma_pago'],
                 
+                'cdp' => $_POST['cdp'] ?? $contratoOriginal['cdp'],
+                'fecha_cdp' => $_POST['fecha_cdp'] ?? null,
+                'valor_cdp' => $_POST['valor_cdp'] ?? null,
+                'rp' => $_POST['rp'] ?? $contratoOriginal['rp'],
+                'valor_rp' => $_POST['valor_rp'] ?? null,
+                'rubro_presupuestal' => $_POST['rubro_presupuestal'] ?? $contratoOriginal['rubro_presupuestal'],
+                
                 // Novedades (Si el rol es financiero, estos inputs vienen vacíos/nulos, así que conservamos el original)
                 'tiene_prorroga' => isset($_POST['tiene_prorroga']) ? 1 : $contratoOriginal['tiene_prorroga'],
                 'numero_prorroga' => $_POST['numero_prorroga'] ?? $contratoOriginal['numero_prorroga'],
@@ -269,7 +277,7 @@ public function show() {
         $conModel = new Contratista();
         $contratista = $conModel->obtenerPorId($contrato['id_contratista']);
 
-        $digitoVerificacion = $this->calcularDigitoVerificacion($contratista);
+        $digitoVerificacion = $contratista['digito_verificacion'] ?: $this->calcularDigitoVerificacion($contratista);
 
         $diferencia = $contrato['valor_total'] - ($contrato['valor_cdp'] ?? 0);
 

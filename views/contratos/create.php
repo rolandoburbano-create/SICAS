@@ -144,7 +144,7 @@
                     </div>
                     <!-- NUEVOS CAMPOS PRESUPUESTALES -->
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mt-6 border-t pt-4 border-base-300">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 border-t pt-4 border-base-300">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Número CDP</span></label>
                         <input type="text" name="cdp" placeholder="Ej: 2026-001" class="input input-bordered w-full" />
@@ -162,6 +162,10 @@
                         <input type="text" name="rp" placeholder="Ej: 2026-045" class="input input-bordered w-full" />
                     </div>
                     <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Valor RP ($)</span></label>
+                        <input type="number" step="0.05" name="valor_rp" placeholder="0.00" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Rubro Presupuestal</span></label>
                         <input type="text" name="rubro_presupuestal" placeholder="Ej: 2.3.1.01" class="input input-bordered w-full" />
                     </div>
@@ -176,7 +180,7 @@
                 <div class="grid grid-cols-1 <?= AuthHelper::esAdmin() ? 'md:grid-cols-4' : 'md:grid-cols-3' ?> gap-4">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Firma *</span></label>
-                        <input type="date" name="fecha_firma" class="input input-bordered" />
+                        <input type="date" name="fecha_firma" id="fecha_firma_calc" class="input input-bordered" />
                     </div>
                     <?php if(AuthHelper::esAdmin()): ?>
                     <div class="form-control">
@@ -376,10 +380,11 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const inputInicio = document.getElementById('fecha_inicio_calc');
+            const inputFirma = document.getElementById('fecha_firma_calc');
             const inputFinEst = document.getElementById('fecha_terminacion_calc');
             const inputPlazoEst = document.getElementById('plazo_ejecucion_calc');
 
+            const inputInicio = document.getElementById('fecha_inicio_calc');
             const inputFinReal = document.getElementById('fecha_terminacion_real_calc');
             const inputPlazoReal = document.getElementById('plazo_ejecucion_real_calc');
 
@@ -402,8 +407,8 @@
             }
 
             function calcularPlazoEstimado() {
-                if (inputInicio && inputFinEst && inputPlazoEst) {
-                    inputPlazoEst.value = obtenerDiferenciaDias(inputInicio.value, inputFinEst.value);
+                if (inputFirma && inputFinEst && inputPlazoEst) {
+                    inputPlazoEst.value = obtenerDiferenciaDias(inputFirma.value, inputFinEst.value);
                 }
             }
 
@@ -413,14 +418,17 @@
                 }
             }
 
+            if (inputFirma) {
+                inputFirma.addEventListener('change', calcularPlazoEstimado);
+            }
+            if (inputFinEst) {
+                inputFinEst.addEventListener('change', calcularPlazoEstimado);
+            }
             if (inputInicio) {
                 inputInicio.addEventListener('change', function() {
                     calcularPlazoEstimado();
                     calcularPlazoReal();
                 });
-            }
-            if (inputFinEst) {
-                inputFinEst.addEventListener('change', calcularPlazoEstimado);
             }
             if (inputFinReal) {
                 inputFinReal.addEventListener('change', calcularPlazoReal);

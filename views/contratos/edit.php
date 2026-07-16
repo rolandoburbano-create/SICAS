@@ -67,6 +67,32 @@ $bloquearSelectNovedades = (AuthHelper::esFinanciero()) ? 'disabled class="selec
                         </select>
                     </div>
                 </div>
+                <div class="grid grid-cols-1 md:grid-cols-6 gap-4 mt-6 border-t pt-4 border-base-300">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Número CDP</span></label>
+                        <input type="text" name="cdp" value="<?= htmlspecialchars($contrato['cdp'] ?? '') ?>" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Fecha CDP</span></label>
+                        <input type="date" name="fecha_cdp" value="<?= $contrato['fecha_cdp'] ?? '' ?>" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Valor CDP ($)</span></label>
+                        <input type="number" step="0.05" name="valor_cdp" value="<?= $contrato['valor_cdp'] ?? '' ?>" placeholder="0.00" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Número RP</span></label>
+                        <input type="text" name="rp" value="<?= htmlspecialchars($contrato['rp'] ?? '') ?>" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Valor RP ($)</span></label>
+                        <input type="number" step="0.05" name="valor_rp" value="<?= $contrato['valor_rp'] ?? '' ?>" placeholder="0.00" class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold">Rubro Presupuestal</span></label>
+                        <input type="text" name="rubro_presupuestal" value="<?= htmlspecialchars($contrato['rubro_presupuestal'] ?? '') ?>" class="input input-bordered w-full" />
+                    </div>
+                </div>
             </div>
         </div>
 

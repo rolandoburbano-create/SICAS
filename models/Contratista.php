@@ -48,15 +48,16 @@ class Contratista {
             $this->conn->beginTransaction();
 
             $query = "INSERT INTO " . $this->table_name . " 
-                    (tipo_persona, tipo_documento, documento, nombre_razon_social, genero, direccion, telefono, correo, entidad_bancaria, tipo_cuenta, numero_cuenta) 
+                    (tipo_persona, tipo_documento, documento, digito_verificacion, nombre_razon_social, genero, direccion, telefono, correo, entidad_bancaria, tipo_cuenta, numero_cuenta) 
                     VALUES 
-                    (:tipo_persona, :tipo_doc, :doc, :nombre, :genero, :direccion, :telefono, :correo, :entidad_bancaria, :tipo_cuenta, :numero_cuenta)";
+                    (:tipo_persona, :tipo_doc, :doc, :dv, :nombre, :genero, :direccion, :telefono, :correo, :entidad_bancaria, :tipo_cuenta, :numero_cuenta)";
             
             $stmt = $this->conn->prepare($query);
             $stmt->execute([
                 ':tipo_persona' => $datos['tipo_persona'],
                 ':tipo_doc' => $datos['tipo_documento'],
                 ':doc' => $datos['documento'],
+                ':dv' => $datos['digito_verificacion'] ?? null,
                 ':nombre' => $datos['nombre_razon_social'],
                 ':genero' => $datos['genero'],
                 ':direccion' => $datos['direccion'],
@@ -95,6 +96,7 @@ class Contratista {
         try {
             $query = "UPDATE " . $this->table_name . " 
                       SET tipo_persona = :tipo_persona, tipo_documento = :tipo_documento, documento = :documento, 
+                          digito_verificacion = :dv,
                           nombre_razon_social = :nombre_razon_social, genero = :genero, direccion = :direccion, 
                           telefono = :telefono, correo = :correo, entidad_bancaria = :entidad_bancaria, 
                           tipo_cuenta = :tipo_cuenta, numero_cuenta = :numero_cuenta 
@@ -105,6 +107,7 @@ class Contratista {
                 ':tipo_persona' => $datos['tipo_persona'],
                 ':tipo_documento' => $datos['tipo_documento'],
                 ':documento' => $datos['documento'],
+                ':dv' => $datos['digito_verificacion'] ?? null,
                 ':nombre_razon_social' => $datos['nombre_razon_social'],
                 ':genero' => $datos['genero'],
                 ':direccion' => $datos['direccion'],

@@ -15,7 +15,7 @@
                 
                 <div class="divider text-primary font-bold text-sm uppercase tracking-wider mt-0">I. Identificación</div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div class="form-control w-full">
                         <label class="label"><span class="label-text font-semibold">Tipo de Persona *</span></label>
                         <select name="tipo_persona" required class="select select-bordered w-full">
@@ -24,9 +24,14 @@
                         </select>
                     </div>
 
+                    <div class="form-control w-full md:col-span-3">
+                        <label class="label"><span class="label-text font-semibold">Nombre o Razón Social *</span></label>
+                        <input type="text" name="nombre_razon_social" required class="input input-bordered w-full" placeholder="Nombre completo o nombre de la empresa" />
+                    </div>
+
                     <div class="form-control w-full">
                         <label class="label"><span class="label-text font-semibold">Tipo de Documento *</span></label>
-                        <select name="tipo_documento" required class="select select-bordered w-full">
+                        <select name="tipo_documento" id="tipo_documento" required class="select select-bordered w-full">
                             <option value="CC">Cédula de Ciudadanía (CC)</option>
                             <option value="NIT">NIT</option>
                             <option value="CE">Cédula de Extranjería (CE)</option>
@@ -36,16 +41,16 @@
 
                     <div class="form-control w-full">
                         <label class="label"><span class="label-text font-semibold">No. de Documento *</span></label>
-                        <input type="text" name="documento" required class="input input-bordered w-full" placeholder="Ej. 1061234567" />
-                    </div>
-
-                    <div class="form-control w-full md:col-span-2">
-                        <label class="label"><span class="label-text font-semibold">Nombre o Razón Social *</span></label>
-                        <input type="text" name="nombre_razon_social" required class="input input-bordered w-full" placeholder="Nombre completo o nombre de la empresa" />
+                        <input type="text" name="documento" id="documento" required class="input input-bordered w-full" placeholder="Ej. 1061234567" />
                     </div>
 
                     <div class="form-control w-full">
-                        <label class="label"><span class="label-text font-semibold">Género (SECOP) *</span></label>
+                        <label class="label"><span class="label-text font-semibold">DV</span></label>
+                        <input type="text" name="digito_verificacion" id="digito_verificacion" readonly class="input input-bordered w-full bg-base-200 max-w-[80px]" placeholder="-" />
+                    </div>
+
+                    <div class="form-control w-full">
+                        <label class="label"><span class="label-text font-semibold">Género *</span></label>
                         <select name="genero" required class="select select-bordered w-full">
                             <option value="Masculino">Masculino</option>
                             <option value="Femenino">Femenino</option>
@@ -106,3 +111,34 @@
         </div>
     </div>
 </div>
+
+<script>
+function calcularDV(nit) {
+    const pesos = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
+    let suma = 0;
+    const digitos = nit.replace(/[^0-9]/g, '');
+    const len = digitos.length;
+    for (let i = 0; i < len; i++) {
+        const digito = parseInt(digitos[len - 1 - i]);
+        suma += digito * (pesos[i] || 1);
+    }
+    const mod = suma % 11;
+    return mod >= 2 ? (11 - mod).toString() : mod.toString();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoDoc = document.getElementById('tipo_documento');
+    const documento = document.getElementById('documento');
+    const dvInput = document.getElementById('digito_verificacion');
+
+    function actualizarDV() {
+        const doc = documento.value.replace(/[^0-9]/g, '');
+        dvInput.value = doc.length > 0 ? calcularDV(doc) : '';
+    }
+
+    tipoDoc.addEventListener('change', actualizarDV);
+    documento.addEventListener('input', actualizarDV);
+
+    actualizarDV();
+});
+</script>

@@ -27,7 +27,7 @@
 
                     <div class="form-control w-full">
                         <label class="label"><span class="label-text font-semibold">Tipo de Documento *</span></label>
-                        <select name="tipo_documento" required class="select select-bordered w-full">
+                        <select name="tipo_documento" id="tipo_documento_edit" required class="select select-bordered w-full">
                             <option value="CC" <?= $contratista['tipo_documento'] == 'CC' ? 'selected' : '' ?>>Cedula de Ciudadania (CC)</option>
                             <option value="NIT" <?= $contratista['tipo_documento'] == 'NIT' ? 'selected' : '' ?>>NIT</option>
                             <option value="CE" <?= $contratista['tipo_documento'] == 'CE' ? 'selected' : '' ?>>Cedula de Extranjeria (CE)</option>
@@ -37,7 +37,12 @@
 
                     <div class="form-control w-full">
                         <label class="label"><span class="label-text font-semibold">No. de Documento *</span></label>
-                        <input type="text" name="documento" required value="<?= htmlspecialchars($contratista['documento']) ?>" class="input input-bordered w-full" />
+                        <input type="text" name="documento" id="documento_edit" required value="<?= htmlspecialchars($contratista['documento']) ?>" class="input input-bordered w-full" />
+                    </div>
+
+                    <div class="form-control w-full" id="dv-field-edit">
+                        <label class="label"><span class="label-text font-semibold">DV</span></label>
+                        <input type="text" name="digito_verificacion" id="digito_verificacion_edit" readonly class="input input-bordered w-full bg-base-200" value="<?= htmlspecialchars($contratista['digito_verificacion'] ?? '') ?>" />
                     </div>
 
                     <div class="form-control w-full md:col-span-2">
@@ -107,3 +112,35 @@
         </div>
     </div>
 </div>
+
+<script>
+function calcularDV(nit) {
+    const pesos = [3, 7, 13, 17, 19, 23, 29, 37, 41, 43, 47, 53, 59, 67, 71];
+    let suma = 0;
+    const digitos = nit.replace(/[^0-9]/g, '');
+    const len = digitos.length;
+    for (let i = 0; i < len; i++) {
+        const digito = parseInt(digitos[len - 1 - i]);
+        suma += digito * (pesos[i] || 1);
+    }
+    const mod = suma % 11;
+    return mod >= 2 ? (11 - mod).toString() : mod.toString();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const tipoDoc = document.getElementById('tipo_documento_edit');
+    const documento = document.getElementById('documento_edit');
+    const dvField = document.getElementById('dv-field-edit');
+    const dvInput = document.getElementById('digito_verificacion_edit');
+
+    function actualizarDV() {
+        const doc = documento.value.replace(/[^0-9]/g, '');
+        dvInput.value = doc.length > 0 ? calcularDV(doc) : '';
+    }
+
+    tipoDoc.addEventListener('change', actualizarDV);
+    documento.addEventListener('input', actualizarDV);
+
+    actualizarDV();
+});
+</script>

@@ -11,7 +11,7 @@
         </div>
         <div class="ticket-row">
             <span class="label">Fecha Radicación</span>
-            <span class="value"><?= htmlspecialchars($contrato['fecha_elaboracion'] ?? date('Y-m-d')) ?></span>
+            <span class="value"><?= htmlspecialchars($contrato['fecha_firma'] ?? date('Y-m-d')) ?></span>
         </div>
         <div class="ticket-row">
             <span class="label">BPIN</span>
@@ -28,6 +28,14 @@
         <div class="ticket-row">
             <span class="label">Valor CDP</span>
             <span class="value">$<?= number_format((float)($contrato['valor_cdp'] ?? 0), 0, ',', '.') ?></span>
+        </div>
+        <div class="ticket-row">
+            <span class="label">No. RP</span>
+            <span class="value"><?= htmlspecialchars($contrato['rp'] ?? 'N/A') ?></span>
+        </div>
+        <div class="ticket-row">
+            <span class="label">Valor RP</span>
+            <span class="value">$<?= number_format((float)($contrato['valor_rp'] ?? 0), 0, ',', '.') ?></span>
         </div>
         <div class="ticket-row highlight">
             <span class="label">Valor Contrato</span>
