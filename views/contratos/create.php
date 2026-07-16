@@ -178,10 +178,12 @@
                         <label class="label"><span class="label-text font-bold">Fecha Firma *</span></label>
                         <input type="date" name="fecha_firma" class="input input-bordered" />
                     </div>
+                    <?php if(AuthHelper::esAdmin()): ?>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Inicio *</span></label>
                         <input type="date" name="fecha_inicio" id="fecha_inicio_calc" class="input input-bordered" />
                     </div>
+                    <?php endif; ?>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Terminación Pactada*</span></label>
                         <input type="date" name="fecha_terminacion" id="fecha_terminacion_calc" class="input input-bordered" />
@@ -192,6 +194,7 @@
                     </div>
                 </div>
                 
+                <?php if(AuthHelper::esAdmin()): ?>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 border-t pt-4 border-base-300">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Terminación Real</span></label>
@@ -206,6 +209,7 @@
                         <input type="text" name="plazo_ejecucion_real" id="plazo_ejecucion_real_calc" class="input input-bordered font-bold text-success" placeholder="0 Días" />
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
         <?php endif; ?>
