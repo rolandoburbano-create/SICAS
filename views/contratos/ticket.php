@@ -61,9 +61,9 @@
     <button class="btn-print" onclick="window.print()">
         <i class="fa-solid fa-print"></i> Imprimir Ticket
     </button>
-    <a href="index.php?controller=contrato&action=index" class="btn-back">
-        <i class="fa-solid fa-arrow-left"></i> Volver al Listado
-    </a>
+    <button class="btn-back" onclick="window.close()">
+        <i class="fa-solid fa-xmark"></i> Cerrar
+    </button>
 </div>
 
 
