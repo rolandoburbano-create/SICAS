@@ -20,12 +20,12 @@
                         <input type="text" name="numero_contrato" required class="input input-bordered border-primary" placeholder="Ej. 001-2026" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Código BPIN</span></label>
-                        <input type="text" name="bpin" class="input input-bordered" placeholder="Código de inversión" />
+                        <label class="label"><span class="label-text font-bold">Código BPIN *</span></label>
+                        <input type="text" name="bpin" required class="input input-bordered" placeholder="Código de inversión" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Estado del Proceso</span></label>
-                        <select name="estado" class="select select-bordered text-primary font-bold">
+                        <label class="label"><span class="label-text font-bold">Estado del Proceso *</span></label>
+                        <select name="estado" required class="select select-bordered text-primary font-bold">
                             <option value="Celebrado" selected>Celebrado</option>
                             <option value="Activo">Activo / En ejecución</option>
                         </select>
@@ -57,7 +57,7 @@
                         <label class="label"><span class="label-text font-bold">Contratista *</span></label>
                         <div class="relative" id="contratista-autocomplete">
                             <input type="text" id="contratista-search" class="input input-bordered w-full" placeholder="Busque por nombre, apellido o documento..." autocomplete="off">
-                            <input type="hidden" name="id_contratista" id="contratista-id">
+                            <input type="hidden" name="id_contratista" id="contratista-id" required>
                             <div id="contratista-results" class="absolute z-50 w-full mt-1 bg-white shadow-lg border border-base-300 rounded-box hidden max-h-60 overflow-y-auto"></div>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Secretaría / Oficina *</span></label>
-                            <select name="secretaria" class="select select-bordered w-full">
+                            <select name="secretaria" required class="select select-bordered w-full">
                             <option value="">-- Seleccione la dependencia --</option>
                             <option value="Despacho del Alcalde">Despacho del Alcalde</option>
                             <option value="Secretaría de Gobierno y Participación Ciudadana">Secretaría de Gobierno y Participación Ciudadana</option>
@@ -88,8 +88,8 @@
                         </select>
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Fuente de Recursos</span></label>
-                        <select name="fuente_recursos" class="select select-bordered w-full">
+                        <label class="label"><span class="label-text font-bold">Fuente de Recursos *</span></label>
+                        <select name="fuente_recursos" required class="select select-bordered w-full">
                             <option value="">Seleccione una fuente...</option>
                             <option value="Recursos Propios">Recursos Propios (Libre Destinación)</option>
                             <option value="SGP - Salud">SGP - Salud</option>
@@ -135,7 +135,7 @@
                         <input type="text" inputmode="numeric" name="valor_total" required class="currency-input input input-bordered border-primary text-xl font-bold" placeholder="0" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Forma de Pago</span></label>
+                        <label class="label"><span class="label-text font-bold">Forma de Pago *</span></label>
                         <select name="forma_pago" required class="select select-bordered">
                             <option value="Actas mensuales">Actas mensuales</option>
                             <option value="Actas parciales">Actas parciales</option>
@@ -146,16 +146,16 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 border-t pt-4 border-base-300">
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Número CDP</span></label>
-                        <input type="text" name="cdp" placeholder="Ej: 2026-001" class="input input-bordered w-full" />
+                        <label class="label"><span class="label-text font-bold">Número CDP *</span></label>
+                        <input type="text" name="cdp" required placeholder="Ej: 2026-001" class="input input-bordered w-full" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Fecha CDP</span></label>
-                        <input type="date" name="fecha_cdp" class="input input-bordered w-full" />
+                        <label class="label"><span class="label-text font-bold">Fecha CDP *</span></label>
+                        <input type="date" name="fecha_cdp" required class="input input-bordered w-full" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Valor CDP ($)</span></label>
-                        <input type="text" inputmode="numeric" name="valor_cdp" placeholder="0" class="currency-input input input-bordered w-full" />
+                        <label class="label"><span class="label-text font-bold">Valor CDP ($) *</span></label>
+                        <input type="text" inputmode="numeric" name="valor_cdp" required placeholder="0" class="currency-input input input-bordered w-full" />
                     </div>
                     <?php if(AuthHelper::esAdmin()): ?>
                     <div class="form-control">
@@ -182,7 +182,7 @@
                 <div class="grid grid-cols-1 <?= AuthHelper::esAdmin() ? 'md:grid-cols-4' : 'md:grid-cols-3' ?> gap-4">
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Fecha Firma *</span></label>
-                        <input type="date" name="fecha_firma" id="fecha_firma_calc" class="input input-bordered" />
+                        <input type="date" name="fecha_firma" id="fecha_firma_calc" required class="input input-bordered" />
                     </div>
                     <?php if(AuthHelper::esAdmin()): ?>
                     <div class="form-control">
@@ -191,12 +191,12 @@
                     </div>
                     <?php endif; ?>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Fecha Terminación Pactada*</span></label>
-                        <input type="date" name="fecha_terminacion" id="fecha_terminacion_calc" class="input input-bordered" />
+                        <label class="label"><span class="label-text font-bold">Fecha Terminación Pactada *</span></label>
+                        <input type="date" name="fecha_terminacion" id="fecha_terminacion_calc" required class="input input-bordered" />
                     </div>
                     <div class="form-control">
-                        <label class="label"><span class="label-text font-bold">Plazo</span></label>
-                        <input type="text" name="plazo_ejecucion" id="plazo_ejecucion_calc" class="input input-bordered font-bold text-primary" placeholder="0 Días" />
+                        <label class="label"><span class="label-text font-bold">Plazo *</span></label>
+                        <input type="text" name="plazo_ejecucion" id="plazo_ejecucion_calc" required class="input input-bordered font-bold text-primary" placeholder="0 Días" />
                     </div>
                 </div>
                 
@@ -501,15 +501,56 @@
                 validarValores();
             });
         });
-        document.querySelector('form').addEventListener('submit', function() {
+        document.querySelector('form').addEventListener('submit', function(e) {
+            // 1. Strip currency dots
             document.querySelectorAll('.currency-input').forEach(function(input) {
                 input.value = input.value.replace(/\./g, '');
             });
+
+            // 2. Validate valor_total vs valor_cdp
             var vTotal = obtenerValorNumerico(this.querySelector('[name="valor_total"]'));
             var vCdp = obtenerValorNumerico(this.querySelector('[name="valor_cdp"]'));
             if (vTotal > 0 && vCdp > 0 && vTotal > vCdp) {
                 alert('El valor del contrato no puede ser mayor al valor del CDP.');
                 return false;
+            }
+
+            // 3. Validate contratista autocomplete
+            var contratistaId = document.getElementById('contratista-id');
+            var contratistaSearch = document.getElementById('contratista-search');
+            if (contratistaId && !contratistaId.value) {
+                alert('Debe seleccionar un Contratista de la lista.');
+                if (contratistaSearch) contratistaSearch.focus();
+                return false;
+            }
+
+            // 4. Validate all required fields and show first empty
+            var campos = [
+                { name: 'numero_contrato', label: 'Número de Contrato' },
+                { name: 'bpin', label: 'Código BPIN' },
+                { name: 'linea_estrategica', label: 'Línea Estratégica' },
+                { name: 'objeto_contrato', label: 'Objeto Contractual' },
+                { name: 'id_supervisor', label: 'Supervisor' },
+                { name: 'secretaria', label: 'Secretaría / Oficina' },
+                { name: 'fuente_recursos', label: 'Fuente de Recursos' },
+                { name: 'modalidad_seleccion', label: 'Modalidad' },
+                { name: 'tipo_contrato', label: 'Tipo de Contrato' },
+                { name: 'valor_total', label: 'Valor Total del Contrato' },
+                { name: 'forma_pago', label: 'Forma de Pago' },
+                { name: 'cdp', label: 'Número CDP' },
+                { name: 'fecha_cdp', label: 'Fecha CDP' },
+                { name: 'valor_cdp', label: 'Valor CDP' },
+                { name: 'fecha_firma', label: 'Fecha Firma' },
+                { name: 'fecha_terminacion', label: 'Fecha Terminación Pactada' },
+                { name: 'plazo_ejecucion', label: 'Plazo' }
+            ];
+            for (var i = 0; i < campos.length; i++) {
+                var input = this.querySelector('[name="' + campos[i].name + '"]');
+                if (input && !input.value.trim()) {
+                    alert('El campo "' + campos[i].label + '" es obligatorio.');
+                    input.focus();
+                    return false;
+                }
             }
         });
         </script>
