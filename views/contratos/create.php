@@ -221,15 +221,24 @@
         <?php endif; ?>
 
         <?php if(AuthHelper::esAdmin()): ?>
-        <!-- ENLACE SECOP -->
+        <!-- ENLACES A PLATAFORMAS -->
         <div class="card bg-base-100 shadow-md border border-base-300 mb-6">
             <div class="card-body">
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text font-bold text-primary"><i class="fa-solid fa-link"></i> Enlace SECOP / SIA OBSERVA</span>
-                        <span class="label-text-alt opacity-70">Opcional</span>
-                    </label>
-                    <input type="url" name="link_secop" placeholder="https://www.secop.gov.co/..." class="input input-bordered w-full" />
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-bold text-primary"><i class="fa-solid fa-link"></i> Enlace SECOP</span>
+                            <span class="label-text-alt opacity-70">Opcional</span>
+                        </label>
+                        <input type="url" name="link_secop" placeholder="https://www.secop.gov.co/..." class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-bold text-primary"><i class="fa-solid fa-link"></i> Enlace SIA OBSERVA</span>
+                            <span class="label-text-alt opacity-70">Opcional</span>
+                        </label>
+                        <input type="url" name="link_sia" placeholder="https://..." class="input input-bordered w-full" />
+                    </div>
                 </div>
             </div>
         </div>

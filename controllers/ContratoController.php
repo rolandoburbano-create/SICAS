@@ -95,6 +95,7 @@ class ContratoController {
                 'valor_rp'               => isset($_POST['valor_rp']) && $_POST['valor_rp'] !== '' ? str_replace('.', '', $_POST['valor_rp']) : null,
                 'rubro_presupuestal'     => $_POST['rubro_presupuestal'] ?? '',
                 'link_secop'             => $_POST['link_secop'] ?? '',
+                'link_sia'               => $_POST['link_sia'] ?? '',
                 'bpin'                   => $_POST['bpin'] ?? '',
                 'linea_estrategica'      => $_POST['linea_estrategica'] ?? '',
                 'tipo_contrato'          => $_POST['tipo_contrato'] ?? '',
@@ -238,6 +239,7 @@ public function show() {
                 'modalidad_seleccion' => $_POST['modalidad_seleccion'] ?? $contratoOriginal['modalidad_seleccion'],
                 'tipo_contrato' => $_POST['tipo_contrato'] ?? $contratoOriginal['tipo_contrato'],
                 'link_secop' => $_POST['link_secop'] ?? $contratoOriginal['link_secop'],
+                'link_sia' => $_POST['link_sia'] ?? $contratoOriginal['link_sia'],
                 'estado' => $_POST['estado'] ?? $contratoOriginal['estado'],
                 
                 'fecha_firma' => $_POST['fecha_firma'] ?? $contratoOriginal['fecha_firma'],

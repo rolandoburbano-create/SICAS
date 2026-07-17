@@ -303,10 +303,16 @@ $bloquearSelectNovedades = (AuthHelper::esFinanciero()) ? 'disabled class="selec
 
         <div class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body">
-                <div class="divider divider-start text-primary font-bold uppercase text-xs">VI. Enlace SECOP</div>
-                <div class="form-control">
-                    <label class="label"><span class="label-text font-bold"><i class="fa-solid fa-link"></i> Enlace SECOP / SIA OBSERVA</span></label>
-                    <input type="url" name="link_secop" value="<?= htmlspecialchars($contrato['link_secop'] ?? '') ?>" placeholder="https://www.secop.gov.co/..." class="input input-bordered w-full" />
+                <div class="divider divider-start text-primary font-bold uppercase text-xs">VI. Enlaces a plataformas</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold"><i class="fa-solid fa-link"></i> Enlace SECOP</span></label>
+                        <input type="url" name="link_secop" value="<?= htmlspecialchars($contrato['link_secop'] ?? '') ?>" placeholder="https://www.secop.gov.co/..." class="input input-bordered w-full" />
+                    </div>
+                    <div class="form-control">
+                        <label class="label"><span class="label-text font-bold"><i class="fa-solid fa-link"></i> Enlace SIA OBSERVA</span></label>
+                        <input type="url" name="link_sia" value="<?= htmlspecialchars($contrato['link_sia'] ?? '') ?>" placeholder="https://..." class="input input-bordered w-full" />
+                    </div>
                 </div>
             </div>
         </div>

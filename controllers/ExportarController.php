@@ -31,6 +31,7 @@ class ExportarController {
             'valor_rp'           => 'Valor RP',
             'rubro_presupuestal' => 'Rubro Presupuestal',
             'link_secop'         => 'Enlace SECOP',
+            'link_sia'           => 'Enlace SIA OBSERVA',
             'estado_contrato'    => 'Estado del Contrato',
             'estado'             => 'Estado General',
             'fecha_elaboracion'  => 'Fecha de Elaboración',

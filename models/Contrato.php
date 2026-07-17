@@ -192,8 +192,9 @@ class Contrato {
                       fuente_recursos = :fuente,
                       modalidad_seleccion = :modalidad,
                       tipo_contrato = :tipo,
-                      link_secop = :secop,
-                      estado = :estado,
+                       link_secop = :secop,
+                       link_sia = :sia,
+                       estado = :estado,
                       fecha_firma = :f_firma,
                       fecha_inicio = :f_inicio,
                       fecha_terminacion = :f_term,
@@ -237,6 +238,7 @@ class Contrato {
             ':modalidad' => $datos['modalidad_seleccion'] ?? null,
             ':tipo' => $datos['tipo_contrato'] ?? null,
             ':secop' => $datos['link_secop'] ?? null,
+            ':sia' => $datos['link_sia'] ?? null,
             ':estado' => $datos['estado'] ?? 'Activo',
             ':f_firma' => $datos['fecha_firma'] ?? null,
             ':f_inicio' => $datos['fecha_inicio'] ?? null,
@@ -273,14 +275,14 @@ class Contrato {
                       (numero_contrato, objeto_contrato, valor_total, forma_pago, 
                        id_contratista, id_supervisor, fecha_firma, fecha_inicio, 
                        fecha_terminacion, fecha_terminacion_real, plazo_ejecucion, plazo_ejecucion_real, 
-                       cdp, fecha_cdp, valor_cdp, rp, valor_rp, rubro_presupuestal, link_secop, bpin, linea_estrategica, 
-                       tipo_contrato, modalidad_seleccion, fuente_recursos, secretaria, estado) 
-                      VALUES 
-                      (:num, :obj, :val, :pago, 
-                       :id_con, :id_sup, :f_firma, :f_inicio, 
-                       :f_term, :f_term_real, :plazo, :plazo_real, 
-                       :cdp, :f_cdp, :v_cdp, :rp, :v_rp, :rubro, :secop, :bpin, :linea, 
-                       :tipo, :modalidad, :fuente, :secretaria, :est)";
+                        cdp, fecha_cdp, valor_cdp, rp, valor_rp, rubro_presupuestal, link_secop, link_sia, bpin, linea_estrategica, 
+                        tipo_contrato, modalidad_seleccion, fuente_recursos, secretaria, estado) 
+                       VALUES 
+                       (:num, :obj, :val, :pago, 
+                        :id_con, :id_sup, :f_firma, :f_inicio, 
+                        :f_term, :f_term_real, :plazo, :plazo_real, 
+                        :cdp, :f_cdp, :v_cdp, :rp, :v_rp, :rubro, :secop, :sia, :bpin, :linea, 
+                        :tipo, :modalidad, :fuente, :secretaria, :est)";
             
             $stmt = $this->conn->prepare($query);
             $stmt->execute([
@@ -302,7 +304,8 @@ class Contrato {
                 ':rp'           => $datos['rp'],
                 ':v_rp'         => $datos['valor_rp'] ?? null,
                 ':rubro'        => $datos['rubro_presupuestal'],
-                ':secop'        => $datos['link_secop'],
+                ':secop'        => $datos['link_secop'] ?? null,
+                ':sia'          => $datos['link_sia'] ?? null,
                 ':bpin'         => $datos['bpin'],
                 ':linea'        => $datos['linea_estrategica'],
                 ':tipo'         => $datos['tipo_contrato'],

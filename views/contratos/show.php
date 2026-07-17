@@ -22,6 +22,16 @@
                 </button>
             <?php endif; ?>
 
+            <?php if(!empty($contrato['link_sia'])): ?>
+                <a href="<?= htmlspecialchars($contrato['link_sia']) ?>" target="_blank" class="btn btn-outline btn-secondary btn-sm flex-1 md:flex-none shadow-sm bg-white gap-1">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> Ver SIA OBSERVA
+                </a>
+            <?php else: ?>
+                <button class="btn btn-outline btn-sm flex-1 md:flex-none bg-base-200 text-base-content/40 cursor-not-allowed gap-1 border-base-300" title="No hay enlace registrado">
+                    <i class="fa-solid fa-link-slash text-xs"></i> Sin SIA
+                </button>
+            <?php endif; ?>
+
             <?php if(AuthHelper::esAdmin()): ?>
                 <a href="index.php?controller=contrato&action=edit&id=<?= $contrato['id_contrato'] ?>" class="btn btn-warning btn-sm text-white flex-1 md:flex-none shadow-sm gap-1">
                     <i class="fa-solid fa-pen-to-square"></i> Editar
@@ -221,7 +231,7 @@
             <div class="card bg-base-100 shadow-sm border border-base-300">
                 <div class="card-body space-y-2">
                     <div class="divider divider-start text-primary font-bold uppercase text-xs m-0">Plataformas Externas</div>
-                    <p class="text-xs opacity-70">Consulta la publicación oficial del proceso contractual en el sistema estatal:</p>
+                    <p class="text-xs opacity-70">Consulta la publicación oficial del proceso contractual:</p>
                     
                     <?php if(!empty($contrato['link_secop'])): ?>
                         <a href="<?= htmlspecialchars($contrato['link_secop']) ?>" target="_blank" class="btn btn-outline btn-primary w-full gap-2 shadow-xs bg-white hover:shadow-md transition-all mt-1">
@@ -229,7 +239,17 @@
                         </a>
                     <?php else: ?>
                         <button class="btn btn-disabled w-full gap-2 mt-1 bg-base-200 text-base-content/50 border border-base-300">
-                            <i class="fa-solid fa-link-slash"></i> Enlace no registrado
+                            <i class="fa-solid fa-link-slash"></i> Enlace SECOP no registrado
+                        </button>
+                    <?php endif; ?>
+
+                    <?php if(!empty($contrato['link_sia'])): ?>
+                        <a href="<?= htmlspecialchars($contrato['link_sia']) ?>" target="_blank" class="btn btn-outline btn-secondary w-full gap-2 shadow-xs bg-white hover:shadow-md transition-all mt-1">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en SIA OBSERVA
+                        </a>
+                    <?php else: ?>
+                        <button class="btn btn-disabled w-full gap-2 mt-1 bg-base-200 text-base-content/50 border border-base-300">
+                            <i class="fa-solid fa-link-slash"></i> Enlace SIA OBSERVA no registrado
                         </button>
                     <?php endif; ?>
                 </div>
