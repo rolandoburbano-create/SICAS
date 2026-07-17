@@ -7,10 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        :root { --margin-preset: 4mm; }
+        :root { --margin-preset: 2mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Courier New', monospace;
+            font-family: 'Calibri', 'Arial', sans-serif;
             background: #f0f0f0;
             display: flex;
             flex-direction: column;
@@ -20,7 +20,7 @@
         .ticket {
             background: #fff;
             width: 7.6cm;
-            padding: 14px 16px;
+            padding: 10px 12px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.15);
             border-radius: 6px;
         }
@@ -120,11 +120,11 @@
             .ticket { box-shadow: none; border-radius: 0; width: 100%; padding: 10px; }
             .actions { display: none !important; }
             .margin-controls { display: none !important; }
-            @page { size: 76mm 80mm; }
+            @page { size: 76mm 142mm; }
         }
     </style>
     <style id="margin-style">
-        @page { margin: 4mm; }
+        @page { margin: 2mm; }
     </style>
 </head>
 <body>

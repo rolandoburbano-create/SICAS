@@ -69,7 +69,6 @@
     <span><i class="fa-solid fa-arrows-up-down-left-right"></i> Márgenes:</span>
     <button class="active" data-margin="2mm" onclick="cambiarMargen(this, '2mm')">Estrecho</button>
     <button data-margin="4mm" onclick="cambiarMargen(this, '4mm')">Normal</button>
-    <button data-margin="7mm" onclick="cambiarMargen(this, '7mm')">Amplio</button>
 </div>
 
 <div class="actions">

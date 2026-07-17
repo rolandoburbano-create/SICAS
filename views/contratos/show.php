@@ -32,6 +32,11 @@
                 </button>
             <?php endif; ?>
 
+            <?php if(AuthHelper::esAdmin() || AuthHelper::esRadicacion()): ?>
+                <a href="index.php?controller=contrato&action=ticket&id=<?= $contrato['id_contrato'] ?>" target="_blank" class="btn btn-outline btn-accent btn-sm flex-1 md:flex-none shadow-sm bg-white gap-1">
+                    <i class="fa-solid fa-ticket text-xs"></i> Ver Ticket
+                </a>
+            <?php endif; ?>
             <?php if(AuthHelper::esAdmin()): ?>
                 <a href="index.php?controller=contrato&action=edit&id=<?= $contrato['id_contrato'] ?>" class="btn btn-warning btn-sm text-white flex-1 md:flex-none shadow-sm gap-1">
                     <i class="fa-solid fa-pen-to-square"></i> Editar
@@ -308,4 +313,8 @@ document.querySelectorAll('form[action*="pago"]').forEach(function(form) {
         });
     });
 });
+
+<?php if(isset($_GET['ticket']) && $_GET['ticket'] == '1'): ?>
+window.open('index.php?controller=contrato&action=ticket&id=<?= $contrato['id_contrato'] ?>', '_blank');
+<?php endif; ?>
 </script>

@@ -116,7 +116,7 @@ class ContratoController {
             try {
                 $nuevoId = $contratoModel->crear($datos);
                 if ($nuevoId) {
-                    header("Location: index.php?controller=contrato&action=ticket&id=" . $nuevoId);
+                    header("Location: index.php?controller=contrato&action=show&id=" . $nuevoId . "&ticket=1");
                     exit();
                 }
             } catch (Exception $e) {
