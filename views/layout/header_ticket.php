@@ -40,7 +40,7 @@
             color: #666;
             margin-top: 3px;
         }
-        .ticket-body { font-size: 11px; line-height: 1.7; }
+        .ticket-body { font-size: 12px; line-height: 1.7; }
         .ticket-row {
             display: flex;
             justify-content: space-between;
