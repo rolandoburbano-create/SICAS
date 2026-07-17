@@ -73,7 +73,7 @@ class PresupuestoController {
                 'vigencia'       => trim($_POST['vigencia'] ?? ''),
                 'origen_recurso' => trim($_POST['origen_recurso'] ?? ''),
                 'tipo'           => trim($_POST['tipo'] ?? ''),
-                'valor'          => $_POST['valor']
+                'valor'          => str_replace('.', '', $_POST['valor'])
             ];
             $rubroModel->crear($datos);
             header("Location: " . BASE_URL . "index.php?controller=presupuesto&action=gestionar&id=" . $datos['id_contrato']);
@@ -90,7 +90,7 @@ class PresupuestoController {
                 'vigencia'       => trim($_POST['vigencia'] ?? ''),
                 'origen_recurso' => trim($_POST['origen_recurso'] ?? ''),
                 'tipo'           => trim($_POST['tipo'] ?? ''),
-                'valor'          => $_POST['valor']
+                'valor'          => str_replace('.', '', $_POST['valor'])
             ];
             $rubroModel->actualizar($datos);
             header("Location: " . BASE_URL . "index.php?controller=presupuesto&action=gestionar&id=" . $_POST['id_contrato']);

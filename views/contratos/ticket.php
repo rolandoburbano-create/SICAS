@@ -65,6 +65,13 @@
     </div>
 </div>
 
+<div class="margin-controls">
+    <span><i class="fa-solid fa-arrows-up-down-left-right"></i> Márgenes:</span>
+    <button class="active" data-margin="2mm" onclick="cambiarMargen(this, '2mm')">Estrecho</button>
+    <button data-margin="4mm" onclick="cambiarMargen(this, '4mm')">Normal</button>
+    <button data-margin="7mm" onclick="cambiarMargen(this, '7mm')">Amplio</button>
+</div>
+
 <div class="actions">
     <button class="btn-print" onclick="window.print()">
         <i class="fa-solid fa-print"></i> Imprimir Ticket
@@ -73,3 +80,11 @@
         <i class="fa-solid fa-arrow-left"></i> Volver al Listado
     </a>
 </div>
+
+<script>
+function cambiarMargen(btn, margin) {
+    document.querySelectorAll('.margin-controls button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('margin-style').textContent = '@page { margin: ' + margin + '; }';
+}
+</script>

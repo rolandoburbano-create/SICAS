@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
+        :root { --margin-preset: 4mm; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Courier New', monospace;
@@ -18,7 +19,7 @@
         }
         .ticket {
             background: #fff;
-            width: 340px;
+            width: 7.6cm;
             padding: 14px 16px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.15);
             border-radius: 6px;
@@ -71,6 +72,7 @@
             gap: 10px;
             margin-top: 14px;
             justify-content: center;
+            flex-wrap: wrap;
         }
         .actions a, .actions button {
             font-family: Arial, sans-serif;
@@ -89,12 +91,40 @@
             background: #e0e0e0;
             color: #333;
         }
+        .margin-controls {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            color: #555;
+            margin-top: 10px;
+        }
+        .margin-controls button {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            padding: 4px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background: #fff;
+            color: #333;
+        }
+        .margin-controls button.active {
+            background: #1B5E20;
+            color: #fff;
+            border-color: #1B5E20;
+        }
         @media print {
             body { background: #fff; padding: 0; }
             .ticket { box-shadow: none; border-radius: 0; width: 100%; padding: 10px; }
             .actions { display: none !important; }
-            @page { margin: 6mm; }
+            .margin-controls { display: none !important; }
+            @page { size: 76mm 80mm; }
         }
+    </style>
+    <style id="margin-style">
+        @page { margin: 4mm; }
     </style>
 </head>
 <body>

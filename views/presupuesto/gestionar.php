@@ -87,7 +87,7 @@
                                     <?php if(AuthHelper::esAdmin() || AuthHelper::esFinanciero()): ?>
                                     <td class="text-center">
                                         <div class="flex gap-1 justify-center">
-                                            <button class="btn btn-ghost btn-xs text-warning" onclick="editarRubro(<?= $r['id_rubro'] ?>, '<?= htmlspecialchars(addslashes($r['rubro'])) ?>', '<?= htmlspecialchars(addslashes($r['vigencia'])) ?>', '<?= htmlspecialchars(addslashes($r['origen_recurso'])) ?>', '<?= htmlspecialchars(addslashes($r['tipo'])) ?>', <?= $r['valor'] ?>)" title="Editar">
+                                            <button class="btn btn-ghost btn-xs text-warning" onclick="editarRubro(<?= $r['id_rubro'] ?>, '<?= htmlspecialchars(addslashes($r['rubro'])) ?>', '<?= htmlspecialchars(addslashes($r['vigencia'])) ?>', '<?= htmlspecialchars(addslashes($r['origen_recurso'])) ?>', '<?= htmlspecialchars(addslashes($r['tipo'])) ?>', <?= (int)$r['valor'] ?>)" title="Editar">
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                             </button>
                                             <a href="index.php?controller=presupuesto&action=eliminarRubro&id=<?= $r['id_rubro'] ?>&id_contrato=<?= $contrato['id_contrato'] ?>" class="btn btn-ghost btn-xs text-error" onclick="return confirm('¿Eliminar este rubro presupuestal?')" title="Eliminar">
@@ -169,7 +169,7 @@
                 </div>
                 <div class="form-control">
                     <label class="label"><span class="label-text font-bold">Valor ($) *</span></label>
-                    <input type="number" step="0.01" name="valor" required class="input input-bordered w-full" placeholder="0.00">
+                    <input type="text" inputmode="numeric" name="valor" required class="currency-input input input-bordered w-full" placeholder="0">
                 </div>
             </div>
 
@@ -185,7 +185,7 @@
 <dialog id="modal_editar_rubro" class="modal">
     <div class="modal-box bg-white">
         <h3 class="font-bold text-lg text-primary mb-4 border-b pb-2">Editar Rubro Presupuestal</h3>
-        <form action="index.php?controller=presupuesto&action=actualizarRubro" method="POST">
+        <form id="form-editar-rubro" action="index.php?controller=presupuesto&action=actualizarRubro" method="POST">
             <input type="hidden" name="id_rubro" id="edit_id_rubro" value="">
             <input type="hidden" name="id_contrato" value="<?= $contrato['id_contrato'] ?>">
 
@@ -225,7 +225,7 @@
                 </div>
                 <div class="form-control">
                     <label class="label"><span class="label-text font-bold">Valor ($) *</span></label>
-                    <input type="number" step="0.01" name="valor" id="edit_valor" required class="input input-bordered w-full">
+                    <input type="text" inputmode="numeric" name="valor" id="edit_valor" required class="currency-input input input-bordered w-full">
                 </div>
             </div>
 
@@ -238,13 +238,35 @@
 </dialog>
 
 <script>
+function formatearMoneda(input) {
+    var valor = input.value.replace(/[^0-9]/g, '');
+    if (valor) {
+        input.value = new Intl.NumberFormat('es-CO').format(valor);
+    }
+}
+
 function editarRubro(id, rubro, vigencia, origenRecurso, tipo, valor) {
     document.getElementById('edit_id_rubro').value = id;
     document.getElementById('edit_rubro').value = rubro;
     document.getElementById('edit_vigencia').value = vigencia;
     document.getElementById('edit_origen_recurso').value = origenRecurso;
     document.getElementById('edit_tipo').value = tipo;
-    document.getElementById('edit_valor').value = valor;
+    var inputValor = document.getElementById('edit_valor');
+    inputValor.value = valor;
+    formatearMoneda(inputValor);
     modal_editar_rubro.showModal();
 }
+
+document.querySelectorAll('.currency-input').forEach(function(input) {
+    formatearMoneda(input);
+    input.addEventListener('input', function() { formatearMoneda(this); });
+});
+
+document.querySelectorAll('form').forEach(function(form) {
+    form.addEventListener('submit', function() {
+        this.querySelectorAll('.currency-input').forEach(function(input) {
+            input.value = input.value.replace(/\./g, '');
+        });
+    });
+});
 </script>

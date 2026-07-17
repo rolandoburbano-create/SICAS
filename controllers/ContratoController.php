@@ -74,7 +74,7 @@ class ContratoController {
              $datos = [
                 'numero_contrato'        => $_POST['numero_contrato'],
                 'objeto_contrato'        => $_POST['objeto_contrato'],
-                'valor_total'            => $_POST['valor_total'],
+                'valor_total'            => str_replace('.', '', $_POST['valor_total']),
                 'forma_pago'             => $_POST['forma_pago'] ?? '',
                 'id_contratista'         => $_POST['id_contratista'],
                 'id_supervisor'          => $_POST['id_supervisor'],
@@ -90,9 +90,9 @@ class ContratoController {
                 'plazo_ejecucion'        => $_POST['plazo_ejecucion'] ?? 'Por definir',
                 'cdp'                    => $_POST['cdp'] ?? '',
                 'fecha_cdp'              => $_POST['fecha_cdp'] ?? null,
-                'valor_cdp'              => $_POST['valor_cdp'] ?? null,
+                'valor_cdp'              => isset($_POST['valor_cdp']) && $_POST['valor_cdp'] !== '' ? str_replace('.', '', $_POST['valor_cdp']) : null,
                 'rp'                     => $_POST['rp'] ?? '',
-                'valor_rp'               => $_POST['valor_rp'] ?? null,
+                'valor_rp'               => isset($_POST['valor_rp']) && $_POST['valor_rp'] !== '' ? str_replace('.', '', $_POST['valor_rp']) : null,
                 'rubro_presupuestal'     => $_POST['rubro_presupuestal'] ?? '',
                 'link_secop'             => $_POST['link_secop'] ?? '',
                 'bpin'                   => $_POST['bpin'] ?? '',
@@ -103,6 +103,14 @@ class ContratoController {
                 'secretaria'             => $_POST['secretaria'] ?? '',
                 'estado'                 => 'Activo' 
             ];
+
+            // Validar que el valor del contrato no sea mayor al valor del CDP
+            $valTotal = floatval($datos['valor_total']);
+            $valCdp = floatval($datos['valor_cdp'] ?? 0);
+            if ($valTotal > 0 && $valCdp > 0 && $valTotal > $valCdp) {
+                echo "<script>alert('El valor del contrato no puede ser mayor al valor del CDP.'); window.history.back();</script>";
+                exit();
+            }
 
             try {
                 $nuevoId = $contratoModel->crear($datos);
@@ -218,17 +226,36 @@ public function show() {
                 'id_contrato' => $id,
                 'numero_contrato' => $_POST['numero_contrato'] ?? $contratoOriginal['numero_contrato'],
                 'objeto_contrato' => $_POST['objeto_contrato'] ?? $contratoOriginal['objeto_contrato'],
-                'valor_total' => $_POST['valor_total'] ?? $contratoOriginal['valor_total'],
+                'valor_total' => isset($_POST['valor_total']) ? str_replace('.', '', $_POST['valor_total']) : $contratoOriginal['valor_total'],
                 'forma_pago' => $_POST['forma_pago'] ?? $contratoOriginal['forma_pago'],
+                
+                'id_contratista' => $_POST['id_contratista'] ?? $contratoOriginal['id_contratista'],
+                'id_supervisor' => $_POST['id_supervisor'] ?? $contratoOriginal['id_supervisor'],
+                'bpin' => $_POST['bpin'] ?? $contratoOriginal['bpin'],
+                'linea_estrategica' => $_POST['linea_estrategica'] ?? $contratoOriginal['linea_estrategica'],
+                'secretaria' => $_POST['secretaria'] ?? $contratoOriginal['secretaria'],
+                'fuente_recursos' => $_POST['fuente_recursos'] ?? $contratoOriginal['fuente_recursos'],
+                'modalidad_seleccion' => $_POST['modalidad_seleccion'] ?? $contratoOriginal['modalidad_seleccion'],
+                'tipo_contrato' => $_POST['tipo_contrato'] ?? $contratoOriginal['tipo_contrato'],
+                'link_secop' => $_POST['link_secop'] ?? $contratoOriginal['link_secop'],
+                'estado' => $_POST['estado'] ?? $contratoOriginal['estado'],
+                
+                'fecha_firma' => $_POST['fecha_firma'] ?? $contratoOriginal['fecha_firma'],
+                'fecha_inicio' => $_POST['fecha_inicio'] ?? $contratoOriginal['fecha_inicio'],
+                'fecha_terminacion' => $_POST['fecha_terminacion'] ?? $contratoOriginal['fecha_terminacion'],
+                'fecha_terminacion_real' => $_POST['fecha_terminacion_real'] ?? $contratoOriginal['fecha_terminacion_real'],
+                'fecha_liquidacion' => $_POST['fecha_liquidacion'] ?? $contratoOriginal['fecha_liquidacion'],
+                'plazo_ejecucion' => $_POST['plazo_ejecucion'] ?? $contratoOriginal['plazo_ejecucion'],
+                'plazo_ejecucion_real' => $_POST['plazo_ejecucion_real'] ?? $contratoOriginal['plazo_ejecucion_real'],
                 
                 'cdp' => $_POST['cdp'] ?? $contratoOriginal['cdp'],
                 'fecha_cdp' => $_POST['fecha_cdp'] ?? null,
-                'valor_cdp' => $_POST['valor_cdp'] ?? null,
+                'valor_cdp' => isset($_POST['valor_cdp']) ? str_replace('.', '', $_POST['valor_cdp']) : $contratoOriginal['valor_cdp'],
                 'rp' => $_POST['rp'] ?? $contratoOriginal['rp'],
-                'valor_rp' => $_POST['valor_rp'] ?? null,
+                'valor_rp' => isset($_POST['valor_rp']) ? str_replace('.', '', $_POST['valor_rp']) : $contratoOriginal['valor_rp'],
                 'rubro_presupuestal' => $_POST['rubro_presupuestal'] ?? $contratoOriginal['rubro_presupuestal'],
                 
-                // Novedades (Si el rol es financiero, estos inputs vienen vacíos/nulos, así que conservamos el original)
+                // Novedades
                 'tiene_prorroga' => isset($_POST['tiene_prorroga']) ? 1 : $contratoOriginal['tiene_prorroga'],
                 'numero_prorroga' => $_POST['numero_prorroga'] ?? $contratoOriginal['numero_prorroga'],
                 'tiempo_prorroga' => $_POST['tiempo_prorroga'] ?? $contratoOriginal['tiempo_prorroga'],

@@ -238,7 +238,7 @@
         </div> </div> </div> <dialog id="modal_pago" class="modal">
     <div class="modal-box bg-white">
         <h3 class="font-bold text-lg text-primary mb-4 border-b pb-2">Registrar Nuevo Pago</h3>
-        <form action="index.php?controller=pago&action=store" method="POST">
+        <form id="form-pago" action="index.php?controller=pago&action=store" method="POST">
             <input type="hidden" name="id_contrato" value="<?= $contrato['id_contrato'] ?>">
             
             <div class="form-control w-full mb-3">
@@ -253,7 +253,7 @@
                 </div>
                 <div class="form-control">
                     <label class="label"><span class="label-text font-bold">Valor Pagado ($) *</span></label>
-                    <input type="number" step="0.01" name="valor_pagado" required placeholder="Ej: 5000000" class="input input-bordered w-full" />
+                    <input type="text" inputmode="numeric" name="valor_pagado" required placeholder="0" class="currency-input input input-bordered w-full" />
                 </div>
             </div>
 
@@ -269,3 +269,23 @@
         </form>
     </div>
 </dialog>
+
+<script>
+function formatearMoneda(input) {
+    var valor = input.value.replace(/[^0-9]/g, '');
+    if (valor) {
+        input.value = new Intl.NumberFormat('es-CO').format(valor);
+    }
+}
+document.querySelectorAll('.currency-input').forEach(function(input) {
+    formatearMoneda(input);
+    input.addEventListener('input', function() { formatearMoneda(this); });
+});
+document.querySelectorAll('form[action*="pago"]').forEach(function(form) {
+    form.addEventListener('submit', function() {
+        this.querySelectorAll('.currency-input').forEach(function(input) {
+            input.value = input.value.replace(/\./g, '');
+        });
+    });
+});
+</script>

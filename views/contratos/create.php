@@ -132,7 +132,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-control md:col-span-1.5">
                         <label class="label"><span class="label-text font-bold text-md text-primary">Valor Total del Contrato ($) *</span></label>
-                        <input type="number" step="0.05" name="valor_total" required class="input input-bordered border-primary text-xl font-bold" placeholder="0.00" />
+                        <input type="text" inputmode="numeric" name="valor_total" required class="currency-input input input-bordered border-primary text-xl font-bold" placeholder="0" />
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Forma de Pago</span></label>
@@ -155,20 +155,22 @@
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Valor CDP ($)</span></label>
-                        <input type="number" step="0.05" name="valor_cdp" placeholder="0.00" class="input input-bordered w-full" />
+                        <input type="text" inputmode="numeric" name="valor_cdp" placeholder="0" class="currency-input input input-bordered w-full" />
                     </div>
+                    <?php if(AuthHelper::esAdmin()): ?>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Número RP</span></label>
                         <input type="text" name="rp" placeholder="Ej: 2026-045" class="input input-bordered w-full" />
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Valor RP ($)</span></label>
-                        <input type="number" step="0.05" name="valor_rp" placeholder="0.00" class="input input-bordered w-full" />
+                        <input type="text" inputmode="numeric" name="valor_rp" placeholder="0" class="currency-input input input-bordered w-full" />
                     </div>
                     <div class="form-control">
                         <label class="label"><span class="label-text font-bold">Rubro Presupuestal</span></label>
                         <input type="text" name="rubro_presupuestal" placeholder="Ej: 2.3.1.01" class="input input-bordered w-full" />
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -293,6 +295,11 @@
         </div>
         <?php endif; ?>
         
+        <div id="error-valor-cdp" class="alert alert-error shadow-lg mb-4" style="display:none;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>El valor del contrato (<strong>Valor Total</strong>) no puede ser mayor al <strong>Valor del CDP</strong>.</span>
+        </div>
+
         <div class="flex justify-end pt-6">
             <button type="submit" class="btn btn-primary btn-lg shadow-xl px-12">
                 <i class="fa-solid fa-save mr-2"></i> Radicar Contrato en el Sistema
@@ -447,6 +454,54 @@
                 resultsId: 'nuevo-contratista-results',
                 url: 'index.php?controller=contratista&action=buscarJson'
             });
+        });
+        </script>
+
+        <script>
+        function obtenerValorNumerico(input) {
+            return parseFloat(input.value.replace(/\./g, '')) || 0;
+        }
+
+        function validarValores() {
+            var total = document.querySelector('[name="valor_total"]');
+            var cdp = document.querySelector('[name="valor_cdp"]');
+            var errorDiv = document.getElementById('error-valor-cdp');
+            var btn = document.querySelector('button[type="submit"]');
+            if (!total || !cdp || !errorDiv || !btn) return;
+            var vTotal = obtenerValorNumerico(total);
+            var vCdp = obtenerValorNumerico(cdp);
+            if (vTotal > 0 && vCdp > 0 && vTotal > vCdp) {
+                errorDiv.style.display = 'block';
+                btn.disabled = true;
+            } else {
+                errorDiv.style.display = 'none';
+                btn.disabled = false;
+            }
+        }
+
+        function formatearMoneda(input) {
+            var valor = input.value.replace(/[^0-9]/g, '');
+            if (valor) {
+                input.value = new Intl.NumberFormat('es-CO').format(valor);
+            }
+        }
+        document.querySelectorAll('.currency-input').forEach(function(input) {
+            formatearMoneda(input);
+            input.addEventListener('input', function() {
+                formatearMoneda(this);
+                validarValores();
+            });
+        });
+        document.querySelector('form').addEventListener('submit', function() {
+            document.querySelectorAll('.currency-input').forEach(function(input) {
+                input.value = input.value.replace(/\./g, '');
+            });
+            var vTotal = obtenerValorNumerico(this.querySelector('[name="valor_total"]'));
+            var vCdp = obtenerValorNumerico(this.querySelector('[name="valor_cdp"]'));
+            if (vTotal > 0 && vCdp > 0 && vTotal > vCdp) {
+                alert('El valor del contrato no puede ser mayor al valor del CDP.');
+                return false;
+            }
         });
         </script>
     </form>

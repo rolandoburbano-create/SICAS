@@ -13,7 +13,7 @@ class PagoController {
                 'id_contrato'   => $_POST['id_contrato'],
                 'numero_acta'   => $_POST['numero_acta'],
                 'fecha_pago'    => $_POST['fecha_pago'],
-                'valor_pagado'  => $_POST['valor_pagado'],
+                'valor_pagado'  => str_replace('.', '', $_POST['valor_pagado']),
                 'observaciones' => $_POST['observaciones'] ?? ''
             ];
 
